@@ -1,9 +1,12 @@
 {
   "version": 2,
   "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "." }
+    },
     { "src": "api/staff.js", "use": "@vercel/node" },
-    { "src": "api/patient.js", "use": "@vercel/node" },
-    { "src": "*.html", "use": "@vercel/static" },
-    { "src": "app.js", "use": "@vercel/static" }
+    { "src": "api/patient.js", "use": "@vercel/node" }
   ]
 }
