@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบข้อมูลการตรวจสุขภาพ - สำหรับเจ้าหน้าที่</title>
+    
+    <!-- Fonts: Noto Sans Thai -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- PapaParse for CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Noto Sans Thai"', 'sans-serif'] },
+                    colors: { navy: '#0f172a', primary: '#1e40af' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #f8fafc; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.4s ease; }
+        .accordion-content.open { max-height: 2000px; padding-bottom: 1rem; }
+        .accordion-icon { transition: transform 0.3s ease; }
+        .accordion-icon.open { transform: rotate(180deg); }
+        .slide-in { animation: slideIn 0.4s ease-out forwards; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="text-gray-800 antialiased h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-hospital-user text-3xl mr-3 opacity-90"></i>
+                    <div>
+                        <h1 class="text-lg md:text-2xl font-bold tracking-tight">Staff Analytics Dashboard</h1>
+                        <p class="text-xs md:text-sm text-blue-100 opacity-90">ระบบจัดการข้อมูลสำหรับเจ้าหน้าที่ - โรงพยาบาลมหาวิทยาลัยอุบลราชธานี</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow overflow-y-auto relative">
+        <div id="loading-overlay" class="absolute inset-0 bg-white z-40 flex flex-col items-center justify-center">
+            <i class="fa-solid fa-circle-notch fa-spin text-5xl text-blue-500"></i>
+            <p class="mt-4 text-navy font-medium animate-pulse">กำลังโหลดข้อมูลระบบ...</p>
+        </div>
+
+        <!-- ==================== STAFF DASHBOARD ==================== -->
+        <div id="staff-view" class="w-full min-h-full slide-in bg-slate-50 pb-10 hidden p-4 md:p-6 lg:p-8">
+            <div class="max-w-7xl mx-auto space-y-6">
+                
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
+                    <h2 class="text-2xl font-bold text-navy"><i class="fa-solid fa-chart-pie mr-2 text-blue-500"></i> ภาพรวมผลการตรวจสุขภาพ (Dashboard)</h2>
+                    <div class="text-xs sm:text-sm text-gray-500 bg-white px-3 py-1.5 rounded-full shadow-sm border flex items-center">
+                        <i class="fa-solid fa-clock mr-2 text-blue-500"></i> อัปเดตล่าสุด: <span id="last-update" class="ml-1 font-medium">กำลังโหลด...</span>
+                    </div>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="glass-card rounded-xl p-5 border-l-4 border-l-blue-500 hover:shadow-md transition-shadow">
+                        <p class="text-sm text-gray-500 font-medium">ผู้รับการตรวจทั้งหมด</p>
+                        <p class="text-3xl font-bold text-navy mt-2" id="kpi-total">0</p>
+                    </div>
+                    <div class="glass-card rounded-xl p-5 border-l-4 border-l-red-500 hover:shadow-md transition-shadow">
+                        <p class="text-sm text-gray-500 font-medium">ความเสี่ยง NCDs</p>
+                        <p class="text-3xl font-bold text-red-600 mt-2" id="kpi-ncd">0%</p>
+                    </div>
+                    <div class="glass-card rounded-xl p-5 border-l-4 border-l-orange-500 hover:shadow-md transition-shadow">
+                        <p class="text-sm text-gray-500 font-medium">ไขมันในเลือดสูง</p>
+                        <p class="text-3xl font-bold text-orange-600 mt-2" id="kpi-lipid">0%</p>
+                    </div>
+                    <div class="glass-card rounded-xl p-5 border-l-4 border-l-green-500 hover:shadow-md transition-shadow">
+                        <p class="text-sm text-gray-500 font-medium">ผลตรวจปกติทั้งหมด</p>
+                        <p class="text-3xl font-bold text-green-600 mt-2" id="kpi-normal">0%</p>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                    <div class="glass-card rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-navy mb-4">ช่วงอายุผู้รับการตรวจ</h3>
+                        <div class="h-64 relative w-full"><canvas id="ageChart"></canvas></div>
+                    </div>
+                    <div class="glass-card rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-navy mb-4">สัดส่วนความเสี่ยงหลัก</h3>
+                        <div class="h-64 relative w-full flex justify-center"><canvas id="abnormalChart"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- Data Table -->
+                <div class="glass-card rounded-xl border border-gray-100 shadow-sm mt-6 overflow-hidden flex flex-col">
+                    <div class="p-5 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <h3 class="text-lg font-bold text-navy flex items-center"><i class="fa-solid fa-table-list mr-2 text-blue-500"></i> ทะเบียนผู้รับบริการ (คลิกที่ชื่อเพื่อดูรายงานผล)</h3>
+                        <div class="relative w-full sm:w-72">
+                            <input type="text" id="table-search" placeholder="ค้นหาชื่อ หรือ เลขบัตร..." class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400"></i>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse min-w-[800px]">
+                            <thead class="bg-slate-50 text-gray-600 text-sm border-b border-gray-200">
+                                <tr>
+                                    <!-- Injected by JS -->
+                                </tr>
+                            </thead>
+                            <tbody id="patient-table-body" class="text-sm divide-y divide-gray-100">
+                                <!-- JS injected -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="p-4 border-t border-gray-100 flex items-center justify-between bg-slate-50">
+                        <span class="text-sm text-gray-600">แสดง <span id="table-count" class="font-bold text-gray-800">0</span> รายการ</span>
+                        <div class="flex space-x-2">
+                            <button id="btn-prev-page" class="px-3 py-1.5 border border-gray-300 rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><i class="fa-solid fa-chevron-left"></i></button>
+                            <button id="btn-next-page" class="px-3 py-1.5 border border-gray-300 rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== PATIENT PORTAL (For Staff to Preview) ==================== -->
+        <div id="patient-view" class="w-full min-h-full slide-in bg-slate-50 hidden">
+            <div id="patient-dashboard" class="w-full pb-12">
+                <div class="bg-gradient-to-r from-navy to-primary text-white pt-8 pb-12 rounded-b-[2rem] shadow-md px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+                    <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+                    <div class="max-w-4xl mx-auto relative z-10 flex flex-col md:flex-row items-center md:items-end justify-between">
+                        <div class="flex items-center mb-6 md:mb-0">
+                            <div class="w-16 h-16 md:w-20 md:h-20 bg-white text-navy rounded-full flex items-center justify-center text-3xl font-bold border-4 border-blue-300 shadow-lg shrink-0"><i class="fa-solid fa-user"></i></div>
+                            <div class="ml-4 md:ml-6">
+                                <h2 class="text-xl md:text-3xl font-bold mb-1" id="p-name">ชื่อ นามสกุล</h2>
+                                <p class="text-blue-200 text-sm md:text-base opacity-90"><i class="fa-regular fa-id-card mr-1.5"></i><span id="p-id">-</span></p>
+                                <p class="text-blue-200 text-sm md:text-base mt-0.5"><i class="fa-solid fa-cake-candles mr-1.5"></i>อายุ <span id="p-age">-</span> ปี <span class="mx-2">•</span> <i class="fa-solid fa-venus-mars mr-1.5"></i>เพศ <span id="p-gender">-</span></p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col space-y-2 shrink-0">
+                            <a id="btn-pdf" href="#" target="_blank" class="hidden bg-blue-500 hover:bg-blue-400 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-all border border-blue-400 shadow-lg flex items-center justify-center">
+                                <i class="fa-solid fa-file-pdf mr-2"></i> ดูรายงานผล PDF
+                            </a>
+                            <button id="btn-logout" class="bg-white/10 hover:bg-white/20 px-4 py-2.5 rounded-xl text-sm font-medium transition-all border border-white/20 backdrop-blur-sm flex items-center justify-center shadow-sm">
+                                <i class="fa-solid fa-arrow-left mr-2"></i> กลับหน้าแดชบอร์ด
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="max-w-4xl mx-auto px-4 sm:px-6 mt-[-2rem] relative z-20">
+                    <div id="p-status-card" class="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-8 border-t-8 border-green-500">
+                        <div class="flex flex-col sm:flex-row items-center sm:items-start justify-between">
+                            <div>
+                                <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-2">ภาพรวมสุขภาพของคุณ</h3>
+                                <div id="p-summary-text" class="text-gray-600 text-sm md:text-base">-</div>
+                            </div>
+                            <div id="p-status-badge" class="mt-4 sm:mt-0 px-6 py-2.5 rounded-xl font-bold text-lg md:text-xl shadow-sm shrink-0 w-full sm:w-auto text-center">-</div>
+                        </div>
+                    </div>
+                    <div id="results-container" class="space-y-4">
+                        <!-- JS injected accordions -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>

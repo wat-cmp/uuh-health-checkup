@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบข้อมูลการตรวจสุขภาพ - โรงพยาบาลมหาวิทยาลัยอุบลราชธานี</title>
+    
+    <!-- Fonts: Noto Sans Thai -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (via CDN for single-file approach) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- PapaParse for CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans Thai"', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: '#0f172a',
+                        primary: '#1e40af',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #f8fafc; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.4s ease;
+        }
+        .accordion-content.open {
+            max-height: 2000px;
+            padding-bottom: 1rem;
+        }
+        .accordion-icon {
+            transition: transform 0.3s ease;
+        }
+        .accordion-icon.open {
+            transform: rotate(180deg);
+        }
+        .slide-in {
+            animation: slideIn 0.4s ease-out forwards;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Print Styles */
+        @media print {
+            html, body { 
+                background-color: white !important; 
+                height: auto !important; 
+                min-height: auto !important;
+                display: block !important; 
+                overflow: visible !important; 
+            }
+            main {
+                display: block !important;
+                overflow: visible !important;
+                height: auto !important;
+            }
+            nav, #patient-login, #btn-logout, #btn-pdf, #btn-print-pdf { display: none !important; }
+            .accordion-content { max-height: none !important; overflow: visible !important; padding-bottom: 1rem !important; }
+            .accordion-icon { display: none !important; }
+            .glass-card { border: 1px solid #e2e8f0 !important; box-shadow: none !important; break-inside: avoid; margin-bottom: 1rem; }
+            #patient-dashboard { padding-bottom: 0 !important; }
+            #p-status-card { break-inside: avoid; }
+            /* Reset header colors for printing */
+            .bg-gradient-to-r.from-navy.to-primary { background: white !important; color: black !important; border-bottom: 2px solid #1e40af; border-radius: 0 !important; padding-top: 1rem; padding-bottom: 1rem; }
+            .text-white { color: black !important; }
+            .text-blue-200 { color: #4b5563 !important; }
+            .bg-white { border-color: #e2e8f0 !important; }
+            /* Remove shadows */
+            * { box-shadow: none !important; }
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="bg-navy text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-hospital-user text-3xl mr-3 opacity-90"></i>
+                    <div>
+                        <h1 class="text-lg md:text-2xl font-bold tracking-tight">ระบบข้อมูลการตรวจสุขภาพ</h1>
+                        <p class="text-xs md:text-sm text-blue-100 opacity-90">งานเวชกรรมสังคม โรงพยาบาลมหาวิทยาลัยอุบลราชธานี</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow overflow-y-auto relative">
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="absolute inset-0 bg-white z-40 flex flex-col items-center justify-center">
+            <i class="fa-solid fa-circle-notch fa-spin text-5xl text-blue-500"></i>
+            <p class="mt-4 text-navy font-medium animate-pulse">กำลังโหลดข้อมูลระบบ...</p>
+        </div>
+
+        <!-- ==================== PATIENT PORTAL ==================== -->
+        <div id="patient-view" class="w-full min-h-full slide-in bg-slate-50">
+            
+            <!-- Login Section -->
+            <div id="patient-login" class="max-w-md mx-auto mt-10 md:mt-20 p-6 md:p-8 glass-card rounded-2xl shadow-xl border border-gray-100 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+                <div class="text-center mb-8">
+                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-blue-100">
+                        <i class="fa-solid fa-user-shield text-3xl text-blue-600"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-navy">เข้าสู่ระบบผู้รับบริการ</h2>
+                    <p class="text-gray-500 text-sm mt-2">กรุณากรอกเลขประจำตัวประชาชน 13 หลัก</p>
+                </div>
+                
+                <form id="login-form" class="space-y-6">
+                    <div>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i class="fa-regular fa-id-card text-gray-400 text-lg"></i>
+                            </div>
+                            <input type="text" id="citizen-id" class="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-lg tracking-wider font-mono text-center mb-4" placeholder="รหัสบัตรประชาชน 13 หลัก" required>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-file-medical text-gray-400 text-lg"></i>
+                            </div>
+                            <input type="text" id="patient-hn" class="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-lg tracking-wider font-mono text-center" placeholder="รหัสประจำตัวผู้ป่วย (HN)" required>
+                        </div>
+                        <p id="login-error" class="hidden text-red-500 text-xs mt-2 font-medium flex items-center"><i class="fa-solid fa-circle-exclamation mr-1"></i>ไม่พบข้อมูลในระบบ กรุณาตรวจสอบเลขประจำตัวประชาชนอีกครั้ง</p>
+                        <div class="mt-4 bg-blue-50 p-3 rounded-lg border border-blue-100 text-xs text-blue-800">
+                            <p class="font-semibold mb-1"><i class="fa-solid fa-circle-info mr-1"></i>ตัวอย่างข้อมูลจริงสำหรับทดสอบ:</p>
+                            <ul class="list-disc pl-4 space-y-1 text-blue-700">
+                                <li>คุณ ชุดาภา มากดี (ID: <code class="bg-blue-100 px-1 rounded cursor-pointer font-mono" onclick="document.getElementById('citizen-id').value='1234567890001'">1234567890001</code>)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-primary hover:bg-blue-800 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
+                        ดูผลการตรวจสุขภาพ <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div id="patient-dashboard" class="hidden w-full slide-in pb-12">
+                <!-- Patient Info Header -->
+                <div class="bg-gradient-to-r from-navy to-primary text-white pt-8 pb-12 rounded-b-[2rem] shadow-md px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+                    <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+                    <div class="max-w-4xl mx-auto relative z-10 flex flex-col md:flex-row items-center md:items-end justify-between">
+                        <div class="flex items-center mb-6 md:mb-0">
+                            <div class="w-16 h-16 md:w-20 md:h-20 bg-white text-navy rounded-full flex items-center justify-center text-3xl font-bold border-4 border-blue-300 shadow-lg shrink-0">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                            <div class="ml-4 md:ml-6">
+                                <h2 class="text-xl md:text-3xl font-bold mb-1" id="p-name">ชื่อ นามสกุล</h2>
+                                <p class="text-blue-200 text-sm md:text-base opacity-90"><i class="fa-regular fa-id-card mr-1.5"></i><span id="p-id">-</span></p>
+                                <p class="text-blue-200 text-sm md:text-base mt-0.5"><i class="fa-solid fa-cake-candles mr-1.5"></i>อายุ <span id="p-age">-</span> ปี <span class="mx-2">•</span> <i class="fa-solid fa-venus-mars mr-1.5"></i>เพศ <span id="p-gender">-</span></p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col space-y-2 shrink-0">
+                            <a id="btn-pdf" href="#" target="_blank" class="hidden bg-blue-500 hover:bg-blue-400 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-all border border-blue-400 shadow-lg flex items-center justify-center">
+                                <i class="fa-solid fa-file-pdf mr-2"></i> ไฟล์ผลตรวจจาก รพ.
+                            </a>
+                            <button id="btn-print-pdf" onclick="window.print()" class="bg-red-500 hover:bg-red-400 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-all border border-red-400 shadow-lg flex items-center justify-center">
+                                <i class="fa-solid fa-print mr-2"></i> ดาวน์โหลด / พิมพ์ (PDF)
+                            </button>
+                            <button id="btn-logout" class="bg-white/10 hover:bg-white/20 px-4 py-2.5 rounded-xl text-sm font-medium transition-all border border-white/20 backdrop-blur-sm flex items-center justify-center shadow-sm text-white">
+                                <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> ออกจากระบบ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="max-w-4xl mx-auto px-4 sm:px-6 mt-[-2rem] relative z-20">
+                    
+                    <!-- Overall Status Alert Card -->
+                    <div id="p-status-card" class="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-8 border-t-8 border-green-500">
+                        <div class="flex flex-col sm:flex-row items-center sm:items-start justify-between">
+                            <div>
+                                <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-2">ภาพรวมสุขภาพของคุณ</h3>
+                                <div id="p-summary-text" class="text-gray-600 text-sm md:text-base">-</div>
+                            </div>
+                            <div id="p-status-badge" class="mt-4 sm:mt-0 px-6 py-2.5 rounded-xl font-bold text-lg md:text-xl shadow-sm shrink-0 w-full sm:w-auto text-center">
+                                -
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Test Results Accordions -->
+                    <div id="results-container" class="space-y-4">
+                        <!-- JS injected accordions -->
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- App Logic -->
+    <script src="app.js"></script>
+</body>
+</html>
