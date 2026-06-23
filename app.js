@@ -15,6 +15,82 @@ const AppState = {
     }
 };
 
+// --- Configuration ---
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQKH6BmbFctC-wCBfo0vMYCDfGkwvO9rCSX1vv9AtJgJNysoGptpaKm4rEZrnbRK6CFOuXKGFzOQ4u_/pub?gid=0&single=true&output=csv';
+const STAFF_KEY = 'YWRtaW4xMjM0'; // encoded
+function _dk(k){return atob(k);}
+
+// --- Client-side Data Fetching ---
+async function getPatientsData() {
+    const response = await fetch(CSV_URL);
+    const csvText = await response.text();
+    
+    return new Promise((resolve, reject) => {
+        Papa.parse(csvText, {
+            header: true,
+            skipEmptyLines: true,
+            complete: function(results) {
+                const data = results.data;
+                const patients = data.filter(row => row['เลขบัตรประชาชน']).map(row => {
+                    const idStr = row['เลขบัตรประชาชน'].toString().trim();
+                    let formattedId = idStr;
+                    if (idStr.length === 13) {
+                        formattedId = `${idStr.charAt(0)}-${idStr.substring(1,5)}-${idStr.substring(5,10)}-${idStr.substring(10,12)}-${idStr.charAt(12)}`;
+                    }
+
+                    const weight = parseFloat(row['น้ำหนัก']);
+                    const heightCm = parseFloat(row['ส่วนสูง']);
+                    if (!isNaN(weight) && !isNaN(heightCm) && heightCm > 0) {
+                        const heightM = heightCm / 100;
+                        const calcBMI = (weight / (heightM * heightM)).toFixed(1);
+                        if (!row['BMI'] || row['BMI'].toString().trim() === '' || row['BMI'].toString().trim() === '-') {
+                            row['BMI'] = calcBMI;
+                            const bmiVal = parseFloat(calcBMI);
+                            if (bmiVal < 18.5) row['แปลผล BMI'] = "น้ำหนักน้อย / ผอม";
+                            else if (bmiVal < 23) row['แปลผล BMI'] = "ปกติ / สุขภาพดี";
+                            else if (bmiVal < 25) row['แปลผล BMI'] = "ท้วม / อ้วนระดับ 1";
+                            else if (bmiVal < 30) row['แปลผล BMI'] = "อ้วน / อ้วนระดับ 2";
+                            else row['แปลผล BMI'] = "อ้วนมาก / อ้วนระดับ 3";
+                        }
+                    }
+
+                    let isHealthy = true;
+                    const docOp = row['ความเห็นแพทย์'] || '';
+                    const bmiTrans = row['แปลผล BMI'] || '';
+                    const abnorm = row['ตัวผิดปกติ+แนะนำ'] || '';
+                    const spec = row['ระบุ(กรณีผลผิดปกติ)'] || '';
+                    const cxr = row['ผล CXR'] || '';
+                    const ekg = row['ผล EKG'] || '';
+                    const dm = row['คัดกรอง NCD (DM)'] || '';
+                    const ht = row['คัดกรอง NCD (HT)'] || '';
+
+                    const checkStr = (docOp + ' ' + bmiTrans + ' ' + abnorm + ' ' + spec + ' ' + cxr + ' ' + ekg).toLowerCase();
+                    if (checkStr.includes('ผิดปกติ') || checkStr.includes('แนะนำพบแพทย์') || checkStr.includes('อ้วน') || checkStr.includes('เสี่ยง')) {
+                        isHealthy = false;
+                    }
+                    if (dm.includes('ผิดปกติ')) isHealthy = false;
+                    if (ht.includes('ผิดปกติ')) isHealthy = false;
+                    
+                    return {
+                        id: formattedId,
+                        rawId: idStr,
+                        hn: row['HN'] ? row['HN'].toString().trim() : '',
+                        name: `${row['คำนำหน้า'] || ''} ${row['ชื่อ'] || ''} ${row['สกุล'] || ''}`.trim(),
+                        age: row['อายุ'] || '-',
+                        gender: (row['คำนำหน้า'] === 'นาย' || row['คำนำหน้า'] === 'ด.ช.') ? 'ชาย' : 'หญิง',
+                        isHealthy: isHealthy,
+                        rowData: row
+                    };
+                });
+                resolve(patients);
+            },
+            error: function(err) {
+                reject(err);
+            }
+        });
+    });
+}
+
 // --- DOM Elements ---
 const DOM = {
     loadingOverlay: document.getElementById('loading-overlay'),
@@ -188,34 +264,25 @@ async function authenticateStaff() {
         return;
     }
 
+    if (password !== _dk(STAFF_KEY)) {
+        alert('รหัสผ่านไม่ถูกต้อง');
+        if(DOM.loadingOverlay) DOM.loadingOverlay.innerHTML = '<p class="text-red-500 font-bold">รหัสผ่านไม่ถูกต้อง กรุณารีเฟรชหน้าเว็บแล้วลองใหม่</p>';
+        return;
+    }
+
     try {
-        const response = await fetch('/api/staff', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ password })
-        });
-
-        if (!response.ok) {
-            const errData = await response.json();
-            alert(errData.error || 'รหัสผ่านไม่ถูกต้อง');
-            if(DOM.loadingOverlay) DOM.loadingOverlay.innerHTML = '<p class="text-red-500 font-bold">รหัสผ่านไม่ถูกต้อง กรุณารีเฟรชหน้าเว็บแล้วลองใหม่</p>';
-            return;
-        }
-
-        const data = await response.json();
+        const data = await getPatientsData();
         AppState.patients = data;
         AppState.pagination.filteredPatients = [...AppState.patients];
         AppState.dataLoaded = true;
         if(DOM.loadingOverlay) DOM.loadingOverlay.classList.add('hidden');
-
     } catch (error) {
         console.error("Staff auth error:", error);
-        if(DOM.loadingOverlay) DOM.loadingOverlay.innerHTML = '<p class="text-red-500 font-bold">เกิดข้อผิดพลาดในการตรวจสอบรหัสผ่าน</p>';
+        if(DOM.loadingOverlay) DOM.loadingOverlay.innerHTML = '<p class="text-red-500 font-bold">เกิดข้อผิดพลาดในการโหลดข้อมูล กรุณารีเฟรชหน้าเว็บแล้วลองใหม่</p>';
     }
 }
 
-// --- Data Fetching ---
-// --- Data Fetching logic moved to backend ---
+// --- Data Fetching (Client-Side) ---
 
 // --- Event Listeners ---
 function setupEventListeners() {
@@ -336,26 +403,21 @@ async function handleLogin(e) {
     btn.disabled = true;
 
     try {
-        const response = await fetch('/api/patient', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ citizenId: inputId, hn })
-        });
+        const patients = await getPatientsData();
+        const patient = patients.find(p => p.rawId === inputId && p.hn === hn);
 
-        if (response.ok) {
-            const patient = await response.json();
+        if (patient) {
             viewPatient(patient);
         } else {
-            const errData = await response.json();
             if(DOM.loginError) {
-                DOM.loginError.innerHTML = `<i class="fa-solid fa-circle-exclamation mr-1"></i>${errData.error || 'ไม่พบข้อมูล'}`;
+                DOM.loginError.innerHTML = `<i class="fa-solid fa-circle-exclamation mr-1"></i>ไม่พบข้อมูลในระบบ กรุณาตรวจสอบเลขประจำตัวประชาชน และ HN อีกครั้ง`;
                 DOM.loginError.classList.remove('hidden');
             }
         }
     } catch (error) {
         console.error("Login error:", error);
         if(DOM.loginError) {
-            DOM.loginError.innerHTML = `<i class="fa-solid fa-circle-exclamation mr-1"></i>ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้`;
+            DOM.loginError.innerHTML = `<i class="fa-solid fa-circle-exclamation mr-1"></i>ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง`;
             DOM.loginError.classList.remove('hidden');
         }
     } finally {
