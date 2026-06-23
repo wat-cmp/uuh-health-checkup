@@ -65,6 +65,64 @@
             from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* ======== Floating Confetti / Particles ======== */
+        .confetti-container {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .confetti {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.5;
+            animation: confettiFall linear infinite;
+        }
+        /* Different shapes */
+        .confetti.square { border-radius: 2px; }
+        .confetti.triangle { 
+            border-radius: 0; 
+            width: 0 !important; height: 0 !important;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 9px solid;
+            background: none !important;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg) scale(1);
+                opacity: 0;
+            }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.4; }
+            100% {
+                transform: translateY(110vh) rotate(720deg) scale(0.5);
+                opacity: 0;
+            }
+        }
+
+        /* Floating drift animation for gentle side-to-side motion */
+        .confetti.drift-1 { animation: confettiFall linear infinite, driftX1 ease-in-out infinite; }
+        .confetti.drift-2 { animation: confettiFall linear infinite, driftX2 ease-in-out infinite; }
+        .confetti.drift-3 { animation: confettiFall linear infinite, driftX3 ease-in-out infinite; }
+
+        @keyframes driftX1 {
+            0%, 100% { margin-left: 0; }
+            50% { margin-left: 40px; }
+        }
+        @keyframes driftX2 {
+            0%, 100% { margin-left: 0; }
+            50% { margin-left: -30px; }
+        }
+        @keyframes driftX3 {
+            0%, 100% { margin-left: 0; }
+            25% { margin-left: 20px; }
+            75% { margin-left: -20px; }
+        }
+        /* ======== End Confetti ======== */
         
         /* Print Styles */
         @media print {
@@ -80,7 +138,7 @@
                 overflow: visible !important;
                 height: auto !important;
             }
-            nav, #patient-login, #btn-logout, #btn-pdf, #btn-print-pdf { display: none !important; }
+            nav, #patient-login, #btn-logout, #btn-pdf, #btn-print-pdf, .confetti-container { display: none !important; }
             .accordion-content { max-height: none !important; overflow: visible !important; padding-bottom: 1rem !important; }
             .accordion-icon { display: none !important; }
             .glass-card { border: 1px solid #e2e8f0 !important; box-shadow: none !important; break-inside: avoid; margin-bottom: 1rem; }
@@ -97,6 +155,10 @@
     </style>
 </head>
 <body class="text-gray-800 antialiased h-screen flex flex-col">
+
+    <!-- Floating Confetti Particles -->
+    <div class="confetti-container" id="confetti-container"></div>
+
     <!-- Navbar -->
     <nav class="bg-navy text-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -113,7 +175,7 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="flex-grow overflow-y-auto relative">
+    <main class="flex-grow overflow-y-auto relative z-10">
         <!-- Loading Overlay -->
         <div id="loading-overlay" class="absolute inset-0 bg-white z-40 flex flex-col items-center justify-center">
             <i class="fa-solid fa-circle-notch fa-spin text-5xl text-blue-500"></i>
@@ -215,5 +277,72 @@
 
     <!-- App Logic -->
     <script src="app.js"></script>
+
+    <!-- Confetti Generator Script -->
+    <script>
+    (function() {
+        const container = document.getElementById('confetti-container');
+        if (!container) return;
+
+        const colors = [
+            '#4285F4', // Google Blue
+            '#EA4335', // Google Red
+            '#FBBC04', // Google Yellow
+            '#34A853', // Google Green
+            '#8A2BE2', // Purple
+            '#FF6B6B', // Coral
+            '#00C9A7', // Teal
+            '#FF8C42', // Orange
+        ];
+        const shapes = ['circle', 'square', 'triangle'];
+        const drifts = ['drift-1', 'drift-2', 'drift-3'];
+        const totalParticles = 35;
+
+        for (let i = 0; i < totalParticles; i++) {
+            const el = document.createElement('div');
+            el.classList.add('confetti');
+            
+            // Random shape
+            const shape = shapes[Math.floor(Math.random() * shapes.length)];
+            el.classList.add(shape);
+            
+            // Random drift direction
+            const drift = drifts[Math.floor(Math.random() * drifts.length)];
+            el.classList.add(drift);
+
+            // Random color
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            if (shape === 'triangle') {
+                el.style.borderBottomColor = color;
+            } else {
+                el.style.backgroundColor = color;
+            }
+            
+            // Random size (3-8px)
+            const size = Math.random() * 5 + 3;
+            if (shape !== 'triangle') {
+                el.style.width = size + 'px';
+                el.style.height = size + 'px';
+            }
+
+            // Random position
+            el.style.left = Math.random() * 100 + '%';
+
+            // Random animation duration (15-40s for slow gentle fall)
+            const fallDuration = Math.random() * 25 + 15;
+            const driftDuration = Math.random() * 8 + 4;
+            el.style.animationDuration = `${fallDuration}s, ${driftDuration}s`;
+
+            // Random delay so they don't all start at once
+            const delay = Math.random() * 20;
+            el.style.animationDelay = `${delay}s, ${delay}s`;
+            
+            // Random opacity (0.3-0.7)
+            el.style.opacity = (Math.random() * 0.4 + 0.3).toFixed(2);
+
+            container.appendChild(el);
+        }
+    })();
+    </script>
 </body>
 </html>
