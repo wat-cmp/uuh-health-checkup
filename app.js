@@ -39,53 +39,53 @@ async function getPatientsData() {
             skipEmptyLines: true,
             complete: function(results) {
                 const data = results.data;
-                const patients = data.filter(row => row['เลขบัตรประชาชน']).map(row => {
-                    const idStr = row['เลขบัตรประชาชน'].toString().trim();
+                const patients = data.filter(row => row['à¹€à¸¥à¸‚à¸šà¸±à¸•à¸£à¸›à¸£à¸°à¸Šà¸²à¸Šà¸™']).map(row => {
+                    const idStr = row['à¹€à¸¥à¸‚à¸šà¸±à¸•à¸£à¸›à¸£à¸°à¸Šà¸²à¸Šà¸™'].toString().trim();
                     let formattedId = idStr;
                     if (idStr.length === 13) {
                         formattedId = `${idStr.charAt(0)}-${idStr.substring(1,5)}-${idStr.substring(5,10)}-${idStr.substring(10,12)}-${idStr.charAt(12)}`;
                     }
 
-                    const weight = parseFloat(row['น้ำหนัก']);
-                    const heightCm = parseFloat(row['ส่วนสูง']);
+                    const weight = parseFloat(row['à¸™à¹‰à¸³à¸«à¸™à¸±à¸']);
+                    const heightCm = parseFloat(row['à¸ªà¹ˆà¸§à¸™à¸ªà¸¹à¸‡']);
                     if (!isNaN(weight) && !isNaN(heightCm) && heightCm > 0) {
                         const heightM = heightCm / 100;
                         const calcBMI = (weight / (heightM * heightM)).toFixed(1);
                         if (!row['BMI'] || row['BMI'].toString().trim() === '' || row['BMI'].toString().trim() === '-') {
                             row['BMI'] = calcBMI;
                             const bmiVal = parseFloat(calcBMI);
-                            if (bmiVal < 18.5) row['แปลผล BMI'] = "น้ำหนักน้อย / ผอม";
-                            else if (bmiVal < 23) row['แปลผล BMI'] = "ปกติ / สุขภาพดี";
-                            else if (bmiVal < 25) row['แปลผล BMI'] = "ท้วม / อ้วนระดับ 1";
-                            else if (bmiVal < 30) row['แปลผล BMI'] = "อ้วน / อ้วนระดับ 2";
-                            else row['แปลผล BMI'] = "อ้วนมาก / อ้วนระดับ 3";
+                            if (bmiVal < 18.5) row['à¹à¸›à¸¥à¸œà¸¥ BMI'] = "à¸™à¹‰à¸³à¸«à¸™à¸±à¸à¸™à¹‰à¸­à¸¢ / à¸œà¸­à¸¡";
+                            else if (bmiVal < 23) row['à¹à¸›à¸¥à¸œà¸¥ BMI'] = "à¸›à¸à¸•à¸´ / à¸ªà¸¸à¸‚à¸ à¸²à¸žà¸”à¸µ";
+                            else if (bmiVal < 25) row['à¹à¸›à¸¥à¸œà¸¥ BMI'] = "à¸—à¹‰à¸§à¸¡ / à¸­à¹‰à¸§à¸™à¸£à¸°à¸”à¸±à¸š 1";
+                            else if (bmiVal < 30) row['à¹à¸›à¸¥à¸œà¸¥ BMI'] = "à¸­à¹‰à¸§à¸™ / à¸­à¹‰à¸§à¸™à¸£à¸°à¸”à¸±à¸š 2";
+                            else row['à¹à¸›à¸¥à¸œà¸¥ BMI'] = "à¸­à¹‰à¸§à¸™à¸¡à¸²à¸ / à¸­à¹‰à¸§à¸™à¸£à¸°à¸”à¸±à¸š 3";
                         }
                     }
 
                     let isHealthy = true;
-                    const docOp = row['ความเห็นแพทย์'] || '';
-                    const bmiTrans = row['แปลผล BMI'] || '';
-                    const abnorm = row['ตัวผิดปกติ+แนะนำ'] || '';
-                    const spec = row['ระบุ(กรณีผลผิดปกติ)'] || '';
-                    const cxr = row['ผล CXR'] || '';
-                    const ekg = row['ผล EKG'] || '';
-                    const dm = row['คัดกรอง NCD (DM)'] || '';
-                    const ht = row['คัดกรอง NCD (HT)'] || '';
+                    const docOp = row['à¸„à¸§à¸²à¸¡à¹€à¸«à¹‡à¸™à¹à¸žà¸—à¸¢à¹Œ'] || '';
+                    const bmiTrans = row['à¹à¸›à¸¥à¸œà¸¥ BMI'] || '';
+                    const abnorm = row['à¸•à¸±à¸§à¸œà¸´à¸”à¸›à¸à¸•à¸´+à¹à¸™à¸°à¸™à¸³'] || '';
+                    const spec = row['à¸£à¸°à¸šà¸¸(à¸à¸£à¸“à¸µà¸œà¸¥à¸œà¸´à¸”à¸›à¸à¸•à¸´)'] || '';
+                    const cxr = row['à¸œà¸¥ CXR'] || '';
+                    const ekg = row['à¸œà¸¥ EKG'] || '';
+                    const dm = row['à¸„à¸±à¸”à¸à¸£à¸­à¸‡ NCD (DM)'] || '';
+                    const ht = row['à¸„à¸±à¸”à¸à¸£à¸­à¸‡ NCD (HT)'] || '';
 
                     const checkStr = (docOp + ' ' + bmiTrans + ' ' + abnorm + ' ' + spec + ' ' + cxr + ' ' + ekg).toLowerCase();
-                    if (checkStr.includes('ผิดปกติ') || checkStr.includes('แนะนำพบแพทย์') || checkStr.includes('อ้วน') || checkStr.includes('เสี่ยง')) {
+                    if (checkStr.includes('à¸œà¸´à¸”à¸›à¸à¸•à¸´') || checkStr.includes('à¹à¸™à¸°à¸™à¸³à¸žà¸šà¹à¸žà¸—à¸¢à¹Œ') || checkStr.includes('à¸­à¹‰à¸§à¸™') || checkStr.includes('à¹€à¸ªà¸µà¹ˆà¸¢à¸‡')) {
                         isHealthy = false;
                     }
-                    if (dm.includes('ผิดปกติ')) isHealthy = false;
-                    if (ht.includes('ผิดปกติ')) isHealthy = false;
+                    if (dm.includes('à¸œà¸´à¸”à¸›à¸à¸•à¸´')) isHealthy = false;
+                    if (ht.includes('à¸œà¸´à¸”à¸›à¸à¸•à¸´')) isHealthy = false;
                     
                     return {
                         id: formattedId,
                         rawId: idStr,
                         hn: row['HN'] ? row['HN'].toString().trim() : '',
-                        name: `${row['คำนำหน้า'] || ''} ${row['ชื่อ'] || ''} ${row['สกุล'] || ''}`.trim(),
-                        age: row['อายุ'] || '-',
-                        gender: (row['คำนำหน้า'] === 'นาย' || row['คำนำหน้า'] === 'ด.ช.') ? 'ชาย' : 'หญิง',
+                        name: `${row['à¸„à¸³à¸™à¸³à¸«à¸™à¹‰à¸²'] || ''} ${row['à¸Šà¸·à¹ˆà¸­'] || ''} ${row['à¸ªà¸à¸¸à¸¥'] || ''}`.trim(),
+                        age: row['à¸­à¸²à¸¢à¸¸'] || '-',
+                        gender: (row['à¸„à¸³à¸™à¸³à¸«à¸™à¹‰à¸²'] === 'à¸™à¸²à¸¢' || row['à¸„à¸³à¸™à¸³à¸«à¸™à¹‰à¸²'] === 'à¸”.à¸Š.') ? 'à¸Šà¸²à¸¢' : 'à¸«à¸à¸´à¸‡',
                         isHealthy: isHealthy,
                         rowData: row
                     };
@@ -158,13 +158,13 @@ const DOM = {
 // --- Reference Values & Text ---
 const BMI_REF_HTML = `
     <div class="mt-4 text-xs text-gray-600 bg-blue-50/50 p-3 rounded-lg border border-blue-100">
-        <p class="font-bold text-navy mb-2"><i class="fa-solid fa-circle-info mr-1"></i> เกณฑ์ดัชนีมวลกาย (BMI) สำหรับคนเอเชีย:</p>
+        <p class="font-bold text-navy mb-2"><i class="fa-solid fa-circle-info mr-1"></i> à¹€à¸à¸“à¸‘à¹Œà¸”à¸±à¸Šà¸™à¸µà¸¡à¸§à¸¥à¸à¸²à¸¢ (BMI) à¸ªà¸³à¸«à¸£à¸±à¸šà¸„à¸™à¹€à¸­à¹€à¸Šà¸µà¸¢:</p>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2">
-            <p><span class="text-blue-600 font-medium w-24 inline-block">< 18.5</span> น้ำหนักน้อย / ผอม</p>
-            <p><span class="text-green-600 font-medium w-24 inline-block">18.5 - 22.9</span> ปกติ / สุขภาพดี</p>
-            <p><span class="text-yellow-600 font-medium w-24 inline-block">23.0 - 24.9</span> ท้วม / อ้วนระดับ 1</p>
-            <p><span class="text-orange-600 font-medium w-24 inline-block">25.0 - 29.9</span> อ้วน / อ้วนระดับ 2</p>
-            <p><span class="text-red-600 font-medium w-24 inline-block">>= 30.0</span> อ้วนมาก / อ้วนระดับ 3</p>
+            <p><span class="text-blue-600 font-medium w-24 inline-block">< 18.5</span> à¸™à¹‰à¸³à¸«à¸™à¸±à¸à¸™à¹‰à¸­à¸¢ / à¸œà¸­à¸¡</p>
+            <p><span class="text-green-600 font-medium w-24 inline-block">18.5 - 22.9</span> à¸›à¸à¸•à¸´ / à¸ªà¸¸à¸‚à¸ à¸²à¸žà¸”à¸µ</p>
+            <p><span class="text-yellow-600 font-medium w-24 inline-block">23.0 - 24.9</span> à¸—à¹‰à¸§à¸¡ / à¸­à¹‰à¸§à¸™à¸£à¸°à¸”à¸±à¸š 1</p>
+            <p><span class="text-orange-600 font-medium w-24 inline-block">25.0 - 29.9</span> à¸­à¹‰à¸§à¸™ / à¸­à¹‰à¸§à¸™à¸£à¸°à¸”à¸±à¸š 2</p>
+            <p><span class="text-red-600 font-medium w-24 inline-block">>= 30.0</span> à¸­à¹‰à¸§à¸™à¸¡à¸²à¸ / à¸­à¹‰à¸§à¸™à¸£à¸°à¸”à¸±à¸š 3</p>
         </div>
     </div>
 `;
@@ -172,87 +172,87 @@ const BMI_REF_HTML = `
 const LAB_REFERENCES = []; // Deprecated in favor of inline normal ranges in GROUPS
 
 const GROUPS = [
-    { id: 'vitals', title: '1. ข้อมูลพื้นฐานและสัญญาณชีพ', icon: 'fa-heart-pulse', fields: [
-        { key: 'BMI', label: 'ดัชนีมวลกาย (BMI)', valueKey: 'BMI', descKey: 'แปลผล BMI', refHtml: BMI_REF_HTML, normal: '18.5 - 22.9' },
-        { key: 'BP', label: 'ความดันโลหิต (BP)', valueKey: 'ความดัน', descKey: null },
-        { key: 'P', label: 'ชีพจร (Pulse)', valueKey: 'ชีพจร', descKey: null },
-        { key: 'Waist', label: 'น้ำหนัก / ส่วนสูง', valueKey: (row) => {
-            if(!row['น้ำหนัก'] && !row['ส่วนสูง']) return '-';
-            return `น้ำหนัก ${row['น้ำหนัก']||'-'} กก. / ส่วนสูง ${row['ส่วนสูง']||'-'} ซม.`;
+    { id: 'vitals', title: '1. à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸žà¸·à¹‰à¸™à¸à¸²à¸™à¹à¸¥à¸°à¸ªà¸±à¸à¸à¸²à¸“à¸Šà¸µà¸ž', icon: 'fa-heart-pulse', fields: [
+        { key: 'BMI', label: 'à¸”à¸±à¸Šà¸™à¸µà¸¡à¸§à¸¥à¸à¸²à¸¢ (BMI)', valueKey: 'BMI', descKey: 'à¹à¸›à¸¥à¸œà¸¥ BMI', refHtml: BMI_REF_HTML, normal: '18.5 - 22.9' },
+        { key: 'BP', label: 'à¸„à¸§à¸²à¸¡à¸”à¸±à¸™à¹‚à¸¥à¸«à¸´à¸• (BP)', valueKey: 'à¸„à¸§à¸²à¸¡à¸”à¸±à¸™', descKey: null },
+        { key: 'P', label: 'à¸Šà¸µà¸žà¸ˆà¸£ (Pulse)', valueKey: 'à¸Šà¸µà¸žà¸ˆà¸£', descKey: null },
+        { key: 'Waist', label: 'à¸™à¹‰à¸³à¸«à¸™à¸±à¸ / à¸ªà¹ˆà¸§à¸™à¸ªà¸¹à¸‡', valueKey: (row) => {
+            if(!row['à¸™à¹‰à¸³à¸«à¸™à¸±à¸'] && !row['à¸ªà¹ˆà¸§à¸™à¸ªà¸¹à¸‡']) return '-';
+            return `à¸™à¹‰à¸³à¸«à¸™à¸±à¸ ${row['à¸™à¹‰à¸³à¸«à¸™à¸±à¸']||'-'} à¸à¸. / à¸ªà¹ˆà¸§à¸™à¸ªà¸¹à¸‡ ${row['à¸ªà¹ˆà¸§à¸™à¸ªà¸¹à¸‡']||'-'} à¸‹à¸¡.`;
         }, descKey: null }
     ]},
-    { id: 'cbc', title: '2. ผลการตรวจความสมบูรณ์ของเลือด', icon: 'fa-droplet', fields: [
-        { key: 'CBC', label: 'ความสมบูรณ์ของเลือด (CBC)', valueKey: 'CBC', descKey: null }
+    { id: 'cbc', title: '2. à¸œà¸¥à¸à¸²à¸£à¸•à¸£à¸§à¸ˆà¸„à¸§à¸²à¸¡à¸ªà¸¡à¸šà¸¹à¸£à¸“à¹Œà¸‚à¸­à¸‡à¹€à¸¥à¸·à¸­à¸”', icon: 'fa-droplet', fields: [
+        { key: 'CBC', label: 'à¸„à¸§à¸²à¸¡à¸ªà¸¡à¸šà¸¹à¸£à¸“à¹Œà¸‚à¸­à¸‡à¹€à¸¥à¸·à¸­à¸” (CBC)', valueKey: 'CBC', descKey: null }
     ]},
-    { id: 'ncd_blood', title: '3. ผลการตรวจเลือดโรค NCD (เบาหวาน, เก๊าท์, ไขมัน)', icon: 'fa-syringe', fields: [
-        { key: 'HT', label: 'การคัดกรองความดันโลหิตสูง', valueKey: 'คัดกรอง NCD (HT)', descKey: null },
-        { key: 'FBS', label: 'น้ำตาลในเลือด (FBS)', valueKey: 'FBS', normal: '70 - 99 mg/dL' },
-        { key: 'HbA1c', label: 'น้ำตาลสะสม (HbA1c)', valueKey: 'HbA1c', normal: '< 5.7 %' },
-        { key: 'Uric acid', label: 'กรดยูริก (Uric acid)', valueKey: 'Uric_acid', normal: '3.4 - 7.0 mg/dL (ชาย), 2.4 - 5.7 mg/dL (หญิง)' },
-        { key: 'Total Cholesterol', label: 'คอเลสเตอรอลรวม (TC)', valueKey: 'Total_Cholesterol', normal: '< 200 mg/dL' },
-        { key: 'Triglyceride', label: 'ไตรกลีเซอไรด์ (TG)', valueKey: 'Triglyceride', normal: '< 150 mg/dL' },
-        { key: 'HDL', label: 'ไขมันดี (HDL)', valueKey: 'HDL', normal: '> 40 mg/dL (ชาย), > 50 mg/dL (หญิง)' },
-        { key: 'LDL', label: 'ไขมันเลว (LDL)', valueKey: 'LDL', normal: '< 100 mg/dL' }
+    { id: 'ncd_blood', title: '3. à¸œà¸¥à¸à¸²à¸£à¸•à¸£à¸§à¸ˆà¹€à¸¥à¸·à¸­à¸”à¹‚à¸£à¸„ NCD (à¹€à¸šà¸²à¸«à¸§à¸²à¸™, à¹€à¸à¹Šà¸²à¸—à¹Œ, à¹„à¸‚à¸¡à¸±à¸™)', icon: 'fa-syringe', fields: [
+        { key: 'HT', label: 'à¸à¸²à¸£à¸„à¸±à¸”à¸à¸£à¸­à¸‡à¸„à¸§à¸²à¸¡à¸”à¸±à¸™à¹‚à¸¥à¸«à¸´à¸•à¸ªà¸¹à¸‡', valueKey: 'à¸„à¸±à¸”à¸à¸£à¸­à¸‡ NCD (HT)', descKey: null },
+        { key: 'FBS', label: 'à¸™à¹‰à¸³à¸•à¸²à¸¥à¹ƒà¸™à¹€à¸¥à¸·à¸­à¸” (FBS)', valueKey: 'FBS', normal: '70 - 99 mg/dL' },
+        { key: 'HbA1c', label: 'à¸™à¹‰à¸³à¸•à¸²à¸¥à¸ªà¸°à¸ªà¸¡ (HbA1c)', valueKey: 'HbA1c', normal: '< 5.7 %' },
+        { key: 'Uric acid', label: 'à¸à¸£à¸”à¸¢à¸¹à¸£à¸´à¸ (Uric acid)', valueKey: 'Uric_acid', normal: '3.4 - 7.0 mg/dL (à¸Šà¸²à¸¢), 2.4 - 5.7 mg/dL (à¸«à¸à¸´à¸‡)' },
+        { key: 'Total Cholesterol', label: 'à¸„à¸­à¹€à¸¥à¸ªà¹€à¸•à¸­à¸£à¸­à¸¥à¸£à¸§à¸¡ (TC)', valueKey: 'Total_Cholesterol', normal: '< 200 mg/dL' },
+        { key: 'Triglyceride', label: 'à¹„à¸•à¸£à¸à¸¥à¸µà¹€à¸‹à¸­à¹„à¸£à¸”à¹Œ (TG)', valueKey: 'Triglyceride', normal: '< 150 mg/dL' },
+        { key: 'HDL', label: 'à¹„à¸‚à¸¡à¸±à¸™à¸”à¸µ (HDL)', valueKey: 'HDL', normal: '> 40 mg/dL (à¸Šà¸²à¸¢), > 50 mg/dL (à¸«à¸à¸´à¸‡)' },
+        { key: 'LDL', label: 'à¹„à¸‚à¸¡à¸±à¸™à¹€à¸¥à¸§ (LDL)', valueKey: 'LDL', normal: '< 100 mg/dL' }
     ]},
-    { id: 'kidney', title: '4. ผลการตรวจการทำงานของไต', icon: 'fa-flask', fields: [
-        { key: 'BUN', label: 'ค่าการทำงานของไต (BUN)', valueKey: 'BUN', normal: '7 - 20 mg/dL' },
-        { key: 'Creatinine', label: 'ค่าการทำงานของไต (Creatinine)', valueKey: 'Creatinine', normal: '0.6 - 1.2 mg/dL' }
+    { id: 'kidney', title: '4. à¸œà¸¥à¸à¸²à¸£à¸•à¸£à¸§à¸ˆà¸à¸²à¸£à¸—à¸³à¸‡à¸²à¸™à¸‚à¸­à¸‡à¹„à¸•', icon: 'fa-flask', fields: [
+        { key: 'BUN', label: 'à¸„à¹ˆà¸²à¸à¸²à¸£à¸—à¸³à¸‡à¸²à¸™à¸‚à¸­à¸‡à¹„à¸• (BUN)', valueKey: 'BUN', normal: '7 - 20 mg/dL' },
+        { key: 'Creatinine', label: 'à¸„à¹ˆà¸²à¸à¸²à¸£à¸—à¸³à¸‡à¸²à¸™à¸‚à¸­à¸‡à¹„à¸• (Creatinine)', valueKey: 'Creatinine', normal: '0.6 - 1.2 mg/dL' }
     ]},
-    { id: 'liver', title: '5. ผลการตรวจการทำงานของตับ', icon: 'fa-vials', fields: [
-        { key: 'SGOT (AST)', label: 'เอนไซม์ตับ (SGOT/AST)', valueKey: 'SGOT', normal: '0 - 40 U/L' },
-        { key: 'SGPT (ALT)', label: 'เอนไซม์ตับ (SGPT/ALT)', valueKey: 'SGPT', normal: '0 - 41 U/L' },
-        { key: 'Alk. Phosphatase', label: 'เอนไซม์ตับ (Alk. Phosphatase)', valueKey: 'Alk_Phosphatase', normal: '40 - 129 U/L' }
+    { id: 'liver', title: '5. à¸œà¸¥à¸à¸²à¸£à¸•à¸£à¸§à¸ˆà¸à¸²à¸£à¸—à¸³à¸‡à¸²à¸™à¸‚à¸­à¸‡à¸•à¸±à¸š', icon: 'fa-vials', fields: [
+        { key: 'SGOT (AST)', label: 'à¹€à¸­à¸™à¹„à¸‹à¸¡à¹Œà¸•à¸±à¸š (SGOT/AST)', valueKey: 'SGOT', normal: '0 - 40 U/L' },
+        { key: 'SGPT (ALT)', label: 'à¹€à¸­à¸™à¹„à¸‹à¸¡à¹Œà¸•à¸±à¸š (SGPT/ALT)', valueKey: 'SGPT', normal: '0 - 41 U/L' },
+        { key: 'Alk. Phosphatase', label: 'à¹€à¸­à¸™à¹„à¸‹à¸¡à¹Œà¸•à¸±à¸š (Alk. Phosphatase)', valueKey: 'Alk_Phosphatase', normal: '40 - 129 U/L' }
     ]},
-    { id: 'tumor', title: '6. ผลการตรวจสารบ่งชี้มะเร็ง', icon: 'fa-virus', fields: [
-        { key: 'AFP', label: 'สารบ่งชี้มะเร็งตับ (AFP)', valueKey: 'AFP', normal: '< 8.0 ng/mL' },
-        { key: 'CEA', label: 'สารบ่งชี้มะเร็งทางเดินอาหาร (CEA)', valueKey: 'CEA', normal: '< 5.0 ng/mL' },
-        { key: 'CA 125', label: 'สารบ่งชี้มะเร็งรังไข่ (CA 125)', valueKey: 'CA_125', normal: '< 35 U/mL' },
-        { key: 'CA199', label: 'สารบ่งชี้มะเร็งตับอ่อน (CA199)', valueKey: 'CA199', normal: '< 37 U/mL' },
-        { key: 'PSA', label: 'สารบ่งชี้มะเร็งต่อมลูกหมาก (PSA)', valueKey: 'PSA', normal: '< 4.0 ng/mL' }
+    { id: 'tumor', title: '6. à¸œà¸¥à¸à¸²à¸£à¸•à¸£à¸§à¸ˆà¸ªà¸²à¸£à¸šà¹ˆà¸‡à¸Šà¸µà¹‰à¸¡à¸°à¹€à¸£à¹‡à¸‡', icon: 'fa-virus', fields: [
+        { key: 'AFP', label: 'à¸ªà¸²à¸£à¸šà¹ˆà¸‡à¸Šà¸µà¹‰à¸¡à¸°à¹€à¸£à¹‡à¸‡à¸•à¸±à¸š (AFP)', valueKey: 'AFP', normal: '< 8.0 ng/mL' },
+        { key: 'CEA', label: 'à¸ªà¸²à¸£à¸šà¹ˆà¸‡à¸Šà¸µà¹‰à¸¡à¸°à¹€à¸£à¹‡à¸‡à¸—à¸²à¸‡à¹€à¸”à¸´à¸™à¸­à¸²à¸«à¸²à¸£ (CEA)', valueKey: 'CEA', normal: '< 5.0 ng/mL' },
+        { key: 'CA 125', label: 'à¸ªà¸²à¸£à¸šà¹ˆà¸‡à¸Šà¸µà¹‰à¸¡à¸°à¹€à¸£à¹‡à¸‡à¸£à¸±à¸‡à¹„à¸‚à¹ˆ (CA 125)', valueKey: 'CA_125', normal: '< 35 U/mL' },
+        { key: 'CA199', label: 'à¸ªà¸²à¸£à¸šà¹ˆà¸‡à¸Šà¸µà¹‰à¸¡à¸°à¹€à¸£à¹‡à¸‡à¸•à¸±à¸šà¸­à¹ˆà¸­à¸™ (CA199)', valueKey: 'CA199', normal: '< 37 U/mL' },
+        { key: 'PSA', label: 'à¸ªà¸²à¸£à¸šà¹ˆà¸‡à¸Šà¸µà¹‰à¸¡à¸°à¹€à¸£à¹‡à¸‡à¸•à¹ˆà¸­à¸¡à¸¥à¸¹à¸à¸«à¸¡à¸²à¸ (PSA)', valueKey: 'PSA', normal: '< 4.0 ng/mL' }
     ]},
-    { id: 'thyroid_immuno', title: '7. ผลการตรวจไทรอยด์และภูมิคุ้มกัน', icon: 'fa-shield-virus', fields: [
-        { key: 'Free T3', label: 'ฮอร์โมนไทรอยด์ (Free T3)', valueKey: 'Free_T3', normal: '2.0 - 4.4 pg/mL' },
-        { key: 'Free T4', label: 'ฮอร์โมนไทรอยด์ (Free T4)', valueKey: 'Free_T4', normal: '0.82 - 1.77 ng/dL' },
-        { key: 'TSH', label: 'ฮอร์โมนไทรอยด์ (TSH)', valueKey: 'TSH', normal: '0.4 - 4.0 mIU/L' },
-        { key: 'HbsAg', label: 'เชื้อไวรัสตับอักเสบ บี (HbsAg)', valueKey: 'HbsAg', normal: 'Negative' },
-        { key: 'HbsAb', label: 'ภูมิคุ้มกันไวรัสตับอักเสบ บี (HbsAb)', valueKey: 'HbsAb', normal: 'Negative' },
-        { key: 'Anti-HCV', label: 'ภูมิคุ้มกันไวรัสตับอักเสบ ซี (Anti-HCV)', valueKey: 'Anti_HCV', normal: 'Negative' },
-        { key: 'Blood group', label: 'หมู่เลือด (Blood group)', valueKey: 'Blood group', normal: null }
+    { id: 'thyroid_immuno', title: '7. à¸œà¸¥à¸à¸²à¸£à¸•à¸£à¸§à¸ˆà¹„à¸—à¸£à¸­à¸¢à¸”à¹Œà¹à¸¥à¸°à¸ à¸¹à¸¡à¸´à¸„à¸¸à¹‰à¸¡à¸à¸±à¸™', icon: 'fa-shield-virus', fields: [
+        { key: 'Free T3', label: 'à¸®à¸­à¸£à¹Œà¹‚à¸¡à¸™à¹„à¸—à¸£à¸­à¸¢à¸”à¹Œ (Free T3)', valueKey: 'Free_T3', normal: '2.0 - 4.4 pg/mL' },
+        { key: 'Free T4', label: 'à¸®à¸­à¸£à¹Œà¹‚à¸¡à¸™à¹„à¸—à¸£à¸­à¸¢à¸”à¹Œ (Free T4)', valueKey: 'Free_T4', normal: '0.82 - 1.77 ng/dL' },
+        { key: 'TSH', label: 'à¸®à¸­à¸£à¹Œà¹‚à¸¡à¸™à¹„à¸—à¸£à¸­à¸¢à¸”à¹Œ (TSH)', valueKey: 'TSH', normal: '0.4 - 4.0 mIU/L' },
+        { key: 'HbsAg', label: 'à¹€à¸Šà¸·à¹‰à¸­à¹„à¸§à¸£à¸±à¸ªà¸•à¸±à¸šà¸­à¸±à¸à¹€à¸ªà¸š à¸šà¸µ (HbsAg)', valueKey: 'HbsAg', normal: 'Negative' },
+        { key: 'HbsAb', label: 'à¸ à¸¹à¸¡à¸´à¸„à¸¸à¹‰à¸¡à¸à¸±à¸™à¹„à¸§à¸£à¸±à¸ªà¸•à¸±à¸šà¸­à¸±à¸à¹€à¸ªà¸š à¸šà¸µ (HbsAb)', valueKey: 'HbsAb', normal: 'Negative' },
+        { key: 'Anti-HCV', label: 'à¸ à¸¹à¸¡à¸´à¸„à¸¸à¹‰à¸¡à¸à¸±à¸™à¹„à¸§à¸£à¸±à¸ªà¸•à¸±à¸šà¸­à¸±à¸à¹€à¸ªà¸š à¸‹à¸µ (Anti-HCV)', valueKey: 'Anti_HCV', normal: 'Negative' },
+        { key: 'Blood group', label: 'à¸«à¸¡à¸¹à¹ˆà¹€à¸¥à¸·à¸­à¸” (Blood group)', valueKey: 'Blood group', normal: null }
     ]},
-    { id: 'ua', title: '8. ผลการตรวจปัสสาวะ', icon: 'fa-vial', fields: [
-        { key: 'UA', label: 'ปัสสาวะ (UA)', valueKey: 'UA', descKey: null, normal: '0 - 5' }
+    { id: 'ua', title: '8. à¸œà¸¥à¸à¸²à¸£à¸•à¸£à¸§à¸ˆà¸›à¸±à¸ªà¸ªà¸²à¸§à¸°', icon: 'fa-vial', fields: [
+        { key: 'UA', label: 'à¸›à¸±à¸ªà¸ªà¸²à¸§à¸° (UA)', valueKey: 'UA', descKey: null, normal: '0 - 5' }
     ]},
-    { id: 'stool', title: '9. ผลการตรวจอุจจาระ', icon: 'fa-poop', fields: [
-        { key: 'Stool Exam', label: 'อุจจาระ (Stool Exam)', valueKey: 'Stool_Exam', descKey: null },
-        { key: 'Stool occult blood', label: 'เลือดแฝงในอุจจาระ (Stool occult blood)', valueKey: 'เลือดแฝงในอุจจาระ', descKey: null }
+    { id: 'stool', title: '9. à¸œà¸¥à¸à¸²à¸£à¸•à¸£à¸§à¸ˆà¸­à¸¸à¸ˆà¸ˆà¸²à¸£à¸°', icon: 'fa-poop', fields: [
+        { key: 'Stool Exam', label: 'à¸­à¸¸à¸ˆà¸ˆà¸²à¸£à¸° (Stool Exam)', valueKey: 'Stool_Exam', descKey: null },
+        { key: 'Stool occult blood', label: 'à¹€à¸¥à¸·à¸­à¸”à¹à¸à¸‡à¹ƒà¸™à¸­à¸¸à¸ˆà¸ˆà¸²à¸£à¸° (Stool occult blood)', valueKey: 'à¹€à¸¥à¸·à¸­à¸”à¹à¸à¸‡à¹ƒà¸™à¸­à¸¸à¸ˆà¸ˆà¸²à¸£à¸°', descKey: null }
     ]},
-    { id: 'special_exams', title: '10. การตรวจพิเศษ (X-Ray, EKG, อัลตราซาวด์, ฯลฯ)', icon: 'fa-x-ray', fields: [
-        { key: 'Physical examination', label: 'ซักประวัติ ตรวจร่างกาย', valueKey: 'Physical_exam', descKey: null },
-        { key: 'Chest X-Ray', label: 'เอกซเรย์ปอด (Chest X-Ray)', valueKey: 'Chest_X_Ray', descKey: null },
-        { key: 'EKG', label: 'คลื่นไฟฟ้าหัวใจ (EKG)', valueKey: 'EKG', descKey: null },
-        { key: 'Ultrasound', label: 'อัลตราซาวด์ช่องท้อง (Ultrasound)', valueKey: 'Ultrasound', descKey: null },
-        { key: 'ตรวจมะเร็งปากมดลูก', label: 'ตรวจภายใน (Pap smear)', valueKey: 'ตรวจมะเร็งปากมดลูก', descKey: null },
-        { key: 'HPV DNA Test', label: 'มะเร็งปากมดลูกระดับพันธุกรรม (HPV DNA)', valueKey: 'HPV DNA Test', descKey: null },
-        { key: 'Bone Density', label: 'ภาวะกระดูกพรุน (Bone Density)', valueKey: 'Bone Density', descKey: null },
-        { key: 'Body Composition Analyzer', label: 'องค์ประกอบร่างกาย', valueKey: 'Body Composition Analyzer', descKey: null },
-        { key: 'Low Dose CT scan', label: 'คัดกรองมะเร็งปอด (Low Dose CT scan)', valueKey: 'Low Dose CT scan', descKey: null }
+    { id: 'special_exams', title: '10. à¸à¸²à¸£à¸•à¸£à¸§à¸ˆà¸žà¸´à¹€à¸¨à¸© (X-Ray, EKG, à¸­à¸±à¸¥à¸•à¸£à¸²à¸‹à¸²à¸§à¸”à¹Œ, à¸¯à¸¥à¸¯)', icon: 'fa-x-ray', fields: [
+        { key: 'Physical examination', label: 'à¸‹à¸±à¸à¸›à¸£à¸°à¸§à¸±à¸•à¸´ à¸•à¸£à¸§à¸ˆà¸£à¹ˆà¸²à¸‡à¸à¸²à¸¢', valueKey: 'Physical_exam', descKey: null },
+        { key: 'Chest X-Ray', label: 'à¹€à¸­à¸à¸‹à¹€à¸£à¸¢à¹Œà¸›à¸­à¸” (Chest X-Ray)', valueKey: 'Chest_X_Ray', descKey: null },
+        { key: 'EKG', label: 'à¸„à¸¥à¸·à¹ˆà¸™à¹„à¸Ÿà¸Ÿà¹‰à¸²à¸«à¸±à¸§à¹ƒà¸ˆ (EKG)', valueKey: 'EKG', descKey: null },
+        { key: 'Ultrasound', label: 'à¸­à¸±à¸¥à¸•à¸£à¸²à¸‹à¸²à¸§à¸”à¹Œà¸Šà¹ˆà¸­à¸‡à¸—à¹‰à¸­à¸‡ (Ultrasound)', valueKey: 'Ultrasound', descKey: null },
+        { key: 'à¸•à¸£à¸§à¸ˆà¸¡à¸°à¹€à¸£à¹‡à¸‡à¸›à¸²à¸à¸¡à¸”à¸¥à¸¹à¸', label: 'à¸•à¸£à¸§à¸ˆà¸ à¸²à¸¢à¹ƒà¸™ (Pap smear)', valueKey: 'à¸•à¸£à¸§à¸ˆà¸¡à¸°à¹€à¸£à¹‡à¸‡à¸›à¸²à¸à¸¡à¸”à¸¥à¸¹à¸', descKey: null },
+        { key: 'HPV DNA Test', label: 'à¸¡à¸°à¹€à¸£à¹‡à¸‡à¸›à¸²à¸à¸¡à¸”à¸¥à¸¹à¸à¸£à¸°à¸”à¸±à¸šà¸žà¸±à¸™à¸˜à¸¸à¸à¸£à¸£à¸¡ (HPV DNA)', valueKey: 'HPV DNA Test', descKey: null },
+        { key: 'Bone Density', label: 'à¸ à¸²à¸§à¸°à¸à¸£à¸°à¸”à¸¹à¸à¸žà¸£à¸¸à¸™ (Bone Density)', valueKey: 'Bone Density', descKey: null },
+        { key: 'Body Composition Analyzer', label: 'à¸­à¸‡à¸„à¹Œà¸›à¸£à¸°à¸à¸­à¸šà¸£à¹ˆà¸²à¸‡à¸à¸²à¸¢', valueKey: 'Body Composition Analyzer', descKey: null },
+        { key: 'Low Dose CT scan', label: 'à¸„à¸±à¸”à¸à¸£à¸­à¸‡à¸¡à¸°à¹€à¸£à¹‡à¸‡à¸›à¸­à¸” (Low Dose CT scan)', valueKey: 'Low Dose CT scan', descKey: null }
     ]},
-    { id: 'mental_health', title: '11. การประเมินภาวะสุขภาพจิต (2Q)', icon: 'fa-brain', fields: [
-        { key: '2Q', label: 'ผลการคัดกรองโรคซึมเศร้า (2Q)', valueKey: '2Q', descKey: null }
+    { id: 'mental_health', title: '11. à¸à¸²à¸£à¸›à¸£à¸°à¹€à¸¡à¸´à¸™à¸ à¸²à¸§à¸°à¸ªà¸¸à¸‚à¸ à¸²à¸žà¸ˆà¸´à¸• (2Q)', icon: 'fa-brain', fields: [
+        { key: '2Q', label: 'à¸œà¸¥à¸à¸²à¸£à¸„à¸±à¸”à¸à¸£à¸­à¸‡à¹‚à¸£à¸„à¸‹à¸¶à¸¡à¹€à¸¨à¸£à¹‰à¸² (2Q)', valueKey: '2Q', descKey: null }
     ]},
-    { id: 'summary', title: '12. สรุปความเห็นแพทย์และการติดตามผล', icon: 'fa-user-doctor', fields: [
-        { key: 'Doctor', label: 'ความเห็นแพทย์', valueKey: 'ความเห็นแพทย์', descKey: null },
-        { key: 'FU', label: 'การติดตามผล (Follow-up)', valueKey: (row) => {
-            const fu = row['Follow up เรื่อง'];
-            const dur = row['ระยะเวลา Follow up'];
+    { id: 'summary', title: '12. à¸ªà¸£à¸¸à¸›à¸„à¸§à¸²à¸¡à¹€à¸«à¹‡à¸™à¹à¸žà¸—à¸¢à¹Œà¹à¸¥à¸°à¸à¸²à¸£à¸•à¸´à¸”à¸•à¸²à¸¡à¸œà¸¥', icon: 'fa-user-doctor', fields: [
+        { key: 'Doctor', label: 'à¸„à¸§à¸²à¸¡à¹€à¸«à¹‡à¸™à¹à¸žà¸—à¸¢à¹Œ', valueKey: 'à¸„à¸§à¸²à¸¡à¹€à¸«à¹‡à¸™à¹à¸žà¸—à¸¢à¹Œ', descKey: null },
+        { key: 'FU', label: 'à¸à¸²à¸£à¸•à¸´à¸”à¸•à¸²à¸¡à¸œà¸¥ (Follow-up)', valueKey: (row) => {
+            const fu = row['Follow up à¹€à¸£à¸·à¹ˆà¸­à¸‡'];
+            const dur = row['à¸£à¸°à¸¢à¸°à¹€à¸§à¸¥à¸² Follow up'];
             const validFu = fu && fu.trim() !== '' && fu.trim() !== '-';
             const validDur = dur && dur.trim() !== '' && dur.trim() !== '-';
             
             if (!validFu && !validDur) return '-';
             
             let result = [];
-            if (validFu) result.push(`เรื่อง: ${fu}`);
-            if (validDur) result.push(`ระยะเวลา: ${dur}`);
+            if (validFu) result.push(`à¹€à¸£à¸·à¹ˆà¸­à¸‡: ${fu}`);
+            if (validDur) result.push(`à¸£à¸°à¸¢à¸°à¹€à¸§à¸¥à¸²: ${dur}`);
             return result.join(' | ');
         }, descKey: null }
     ]}
@@ -279,7 +279,7 @@ async function init() {
         
     } catch (error) {
         console.error("Failed to initialize:", error);
-        if(DOM.loadingOverlay) DOM.loadingOverlay.innerHTML = '<p class="text-red-500 font-bold">เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์</p>';
+        if(DOM.loadingOverlay) DOM.loadingOverlay.innerHTML = '<p class="text-red-500 font-bold">à¹€à¸à¸´à¸”à¸‚à¹‰à¸­à¸œà¸´à¸”à¸žà¸¥à¸²à¸”à¹ƒà¸™à¸à¸²à¸£à¹€à¸Šà¸·à¹ˆà¸­à¸¡à¸•à¹ˆà¸­à¹€à¸‹à¸´à¸£à¹Œà¸Ÿà¹€à¸§à¸­à¸£à¹Œ</p>';
     }
 }
 
@@ -365,7 +365,7 @@ function setupEventListeners() {
                     DOM.loadingOverlay.classList.remove('hidden');
                     DOM.loadingOverlay.innerHTML = `
                         <i class="fa-solid fa-circle-notch fa-spin text-5xl text-blue-500"></i>
-                        <p class="mt-4 text-navy font-medium animate-pulse">กำลังตรวจสอบรหัสผ่านและโหลดข้อมูลระบบ...</p>
+                        <p class="mt-4 text-navy font-medium animate-pulse">à¸à¸³à¸¥à¸±à¸‡à¸•à¸£à¸§à¸ˆà¸ªà¸­à¸šà¸£à¸«à¸±à¸ªà¸œà¹ˆà¸²à¸™à¹à¸¥à¸°à¹‚à¸«à¸¥à¸”à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸£à¸°à¸šà¸š...</p>
                     `;
                 }
                 
@@ -380,14 +380,14 @@ function setupEventListeners() {
                 } catch (error) {
                     console.error("Staff auth error:", error);
                     if (DOM.staffLoginError) {
-                        DOM.staffLoginError.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i> เกิดข้อผิดพลาดในการโหลดข้อมูล';
+                        DOM.staffLoginError.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i> à¹€à¸à¸´à¸”à¸‚à¹‰à¸­à¸œà¸´à¸”à¸žà¸¥à¸²à¸”à¹ƒà¸™à¸à¸²à¸£à¹‚à¸«à¸¥à¸”à¸‚à¹‰à¸­à¸¡à¸¹à¸¥';
                         DOM.staffLoginError.classList.remove('hidden');
                     }
                     if(DOM.loadingOverlay) DOM.loadingOverlay.classList.add('hidden');
                 }
             } else {
                 if(DOM.staffLoginError) {
-                    DOM.staffLoginError.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i> รหัสผ่านไม่ถูกต้อง';
+                    DOM.staffLoginError.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i> à¸£à¸«à¸±à¸ªà¸œà¹ˆà¸²à¸™à¹„à¸¡à¹ˆà¸–à¸¹à¸à¸•à¹‰à¸­à¸‡';
                     DOM.staffLoginError.classList.remove('hidden');
                 }
             }
@@ -398,7 +398,7 @@ function setupEventListeners() {
         DOM.uploadPdfForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!supabaseClient) {
-                Swal.fire({ icon: 'error', title: 'ไม่สามารถอัปโหลดได้', text: 'ไม่ได้เชื่อมต่อกับ Supabase' });
+                Swal.fire({ icon: 'error', title: 'à¹„à¸¡à¹ˆà¸ªà¸²à¸¡à¸²à¸£à¸–à¸­à¸±à¸›à¹‚à¸«à¸¥à¸”à¹„à¸”à¹‰', text: 'à¹„à¸¡à¹ˆà¹„à¸”à¹‰à¹€à¸Šà¸·à¹ˆà¸­à¸¡à¸•à¹ˆà¸­à¸à¸±à¸š Supabase' });
                 return;
             }
             
@@ -409,7 +409,7 @@ function setupEventListeners() {
             if (!citizenId || !docType || !file) return;
             
             DOM.btnUpload.disabled = true;
-            DOM.btnUpload.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> กำลังอัปโหลด...';
+            DOM.btnUpload.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> à¸à¸³à¸¥à¸±à¸‡à¸­à¸±à¸›à¹‚à¸«à¸¥à¸”...';
             
             try {
                 // Upload to Storage
@@ -446,8 +446,8 @@ function setupEventListeners() {
                 
                 Swal.fire({
                     icon: 'success',
-                    title: 'อัปโหลดสำเร็จ',
-                    text: `อัปโหลดไฟล์ ${docType} ของผู้ป่วยเรียบร้อยแล้ว`,
+                    title: 'à¸­à¸±à¸›à¹‚à¸«à¸¥à¸”à¸ªà¸³à¹€à¸£à¹‡à¸ˆ',
+                    text: `à¸­à¸±à¸›à¹‚à¸«à¸¥à¸”à¹„à¸Ÿà¸¥à¹Œ ${docType} à¸‚à¸­à¸‡à¸œà¸¹à¹‰à¸›à¹ˆà¸§à¸¢à¹€à¸£à¸µà¸¢à¸šà¸£à¹‰à¸­à¸¢à¹à¸¥à¹‰à¸§`,
                     confirmButtonColor: '#2563eb'
                 });
                 
@@ -460,12 +460,12 @@ function setupEventListeners() {
                 console.error('Upload Error:', error);
                 Swal.fire({
                     icon: 'error',
-                    title: 'เกิดข้อผิดพลาด',
-                    text: error.message || 'ไม่สามารถอัปโหลดไฟล์ได้',
+                    title: 'à¹€à¸à¸´à¸”à¸‚à¹‰à¸­à¸œà¸´à¸”à¸žà¸¥à¸²à¸”',
+                    text: error.message || 'à¹„à¸¡à¹ˆà¸ªà¸²à¸¡à¸²à¸£à¸–à¸­à¸±à¸›à¹‚à¸«à¸¥à¸”à¹„à¸Ÿà¸¥à¹Œà¹„à¸”à¹‰',
                 });
             } finally {
                 DOM.btnUpload.disabled = false;
-                DOM.btnUpload.innerHTML = '<i class="fa-solid fa-upload mr-2"></i> อัปโหลดไฟล์';
+                DOM.btnUpload.innerHTML = '<i class="fa-solid fa-upload mr-2"></i> à¸­à¸±à¸›à¹‚à¸«à¸¥à¸”à¹„à¸Ÿà¸¥à¹Œ';
             }
         });
     }
@@ -523,7 +523,7 @@ async function handleLogin(e) {
     // Show loading state on button
     const btn = e.target.querySelector('button[type="submit"]');
     const originalBtnHTML = btn.innerHTML;
-    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> กำลังตรวจสอบ...';
+    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> à¸à¸³à¸¥à¸±à¸‡à¸•à¸£à¸§à¸ˆà¸ªà¸­à¸š...';
     btn.disabled = true;
 
     try {
@@ -534,14 +534,14 @@ async function handleLogin(e) {
             viewPatient(patient);
         } else {
             if(DOM.loginError) {
-                DOM.loginError.innerHTML = `<i class="fa-solid fa-circle-exclamation mr-1"></i>ไม่พบข้อมูลในระบบ กรุณาตรวจสอบเลขประจำตัวประชาชน และ HN อีกครั้ง`;
+                DOM.loginError.innerHTML = `<i class="fa-solid fa-circle-exclamation mr-1"></i>à¹„à¸¡à¹ˆà¸žà¸šà¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹ƒà¸™à¸£à¸°à¸šà¸š à¸à¸£à¸¸à¸“à¸²à¸•à¸£à¸§à¸ˆà¸ªà¸­à¸šà¹€à¸¥à¸‚à¸›à¸£à¸°à¸ˆà¸³à¸•à¸±à¸§à¸›à¸£à¸°à¸Šà¸²à¸Šà¸™ à¹à¸¥à¸° HN à¸­à¸µà¸à¸„à¸£à¸±à¹‰à¸‡`;
                 DOM.loginError.classList.remove('hidden');
             }
         }
     } catch (error) {
         console.error("Login error:", error);
         if(DOM.loginError) {
-            DOM.loginError.innerHTML = `<i class="fa-solid fa-circle-exclamation mr-1"></i>ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง`;
+            DOM.loginError.innerHTML = `<i class="fa-solid fa-circle-exclamation mr-1"></i>à¹„à¸¡à¹ˆà¸ªà¸²à¸¡à¸²à¸£à¸–à¹‚à¸«à¸¥à¸”à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹„à¸”à¹‰ à¸à¸£à¸¸à¸“à¸²à¸¥à¸­à¸‡à¹ƒà¸«à¸¡à¹ˆà¸­à¸µà¸à¸„à¸£à¸±à¹‰à¸‡`;
             DOM.loginError.classList.remove('hidden');
         }
     } finally {
@@ -558,7 +558,7 @@ function viewPatient(patient) {
     if (isStaffPage) {
         AppState.staffMode = false;
         updateViewMode();
-        DOM.btnLogout.innerHTML = '<i class="fa-solid fa-arrow-left mr-2"></i> กลับหน้าแดชบอร์ด';
+        DOM.btnLogout.innerHTML = '<i class="fa-solid fa-arrow-left mr-2"></i> à¸à¸¥à¸±à¸šà¸«à¸™à¹‰à¸²à¹à¸”à¸Šà¸šà¸­à¸£à¹Œà¸”';
         
         // Setup staff upload form
         if(DOM.uploadCitizenId) DOM.uploadCitizenId.value = patient.rawId;
@@ -566,7 +566,7 @@ function viewPatient(patient) {
         
     } else {
         DOM.patientDashboard.classList.remove('hidden');
-        DOM.btnLogout.innerHTML = '<i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> ออกจากระบบ';
+        DOM.btnLogout.innerHTML = '<i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> à¸­à¸­à¸à¸ˆà¸²à¸à¸£à¸°à¸šà¸š';
         
         // Fetch patient documents
         fetchPatientDocuments(patient.rawId);
@@ -597,12 +597,12 @@ function renderPatientDashboard() {
     }
     
     // Status Card
-    const rawOpinion = p.rowData['ความเห็นแพทย์'];
+    const rawOpinion = p.rowData['à¸„à¸§à¸²à¸¡à¹€à¸«à¹‡à¸™à¹à¸žà¸—à¸¢à¹Œ'];
     let formattedOpinion = formatDoctorOpinion(rawOpinion);
     
     const doctorOpinionHtml = (rawOpinion && rawOpinion !== '-') 
         ? formattedOpinion 
-        : (p.isHealthy ? 'ยินดีด้วย! ภาพรวมผลการตรวจสุขภาพของคุณอยู่ในเกณฑ์มาตรฐาน' : 'พบค่าผลตรวจบางรายการอยู่นอกเกณฑ์มาตรฐาน แนะนำให้ปฏิบัติตามคำแนะนำอย่างเคร่งครัด');
+        : (p.isHealthy ? 'à¸¢à¸´à¸™à¸”à¸µà¸”à¹‰à¸§à¸¢! à¸ à¸²à¸žà¸£à¸§à¸¡à¸œà¸¥à¸à¸²à¸£à¸•à¸£à¸§à¸ˆà¸ªà¸¸à¸‚à¸ à¸²à¸žà¸‚à¸­à¸‡à¸„à¸¸à¸“à¸­à¸¢à¸¹à¹ˆà¹ƒà¸™à¹€à¸à¸“à¸‘à¹Œà¸¡à¸²à¸•à¸£à¸à¸²à¸™' : 'à¸žà¸šà¸„à¹ˆà¸²à¸œà¸¥à¸•à¸£à¸§à¸ˆà¸šà¸²à¸‡à¸£à¸²à¸¢à¸à¸²à¸£à¸­à¸¢à¸¹à¹ˆà¸™à¸­à¸à¹€à¸à¸“à¸‘à¹Œà¸¡à¸²à¸•à¸£à¸à¸²à¸™ à¹à¸™à¸°à¸™à¸³à¹ƒà¸«à¹‰à¸›à¸à¸´à¸šà¸±à¸•à¸´à¸•à¸²à¸¡à¸„à¸³à¹à¸™à¸°à¸™à¸³à¸­à¸¢à¹ˆà¸²à¸‡à¹€à¸„à¸£à¹ˆà¸‡à¸„à¸£à¸±à¸”');
 
     if(DOM.pStatusCard) {
         DOM.pStatusCard.classList.add('hidden');
@@ -618,13 +618,13 @@ function renderPatientDashboard() {
             const fieldsHTML = group.fields.map(field => {
                 const html = renderTestRow(field, p.rowData);
                 if(html.includes('fa-circle-xmark')) groupAbnormal = true;
-                if(!html.includes('ไม่ได้ตรวจ')) hasContent = true;
+                if(!html.includes('à¹„à¸¡à¹ˆà¹„à¸”à¹‰à¸•à¸£à¸§à¸ˆ')) hasContent = true;
                 return html;
             }).join('');
             
             const statusDot = groupAbnormal 
                 ? `<span class="flex h-3 w-3 relative ml-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span></span>`
-                : (hasContent ? `<span class="ml-3 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">ปกติ</span>` : '');
+                : (hasContent ? `<span class="ml-3 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">à¸›à¸à¸•à¸´</span>` : '');
 
             const accordionHTML = `
                 <div class="glass-card rounded-2xl overflow-hidden bg-white shadow-sm border border-gray-200">
@@ -649,11 +649,11 @@ function renderPatientDashboard() {
         });
 
         // Add Doctor Signature Block
-        const doctorName = p.rowData['แพทย์ผู้แปลผล'];
+        const doctorName = p.rowData['à¹à¸žà¸—à¸¢à¹Œà¸œà¸¹à¹‰à¹à¸›à¸¥à¸œà¸¥'];
         if (doctorName && doctorName.trim() !== '' && doctorName.trim() !== '-') {
             const signatureHTML = `
                 <div class="mt-8 text-right p-6 bg-white rounded-2xl shadow-sm border border-gray-100 break-inside-avoid">
-                    <p class="text-gray-600 mb-2 text-sm md:text-base">แพทย์ผู้แปลผลการตรวจสุขภาพ</p>
+                    <p class="text-gray-600 mb-2 text-sm md:text-base">à¹à¸žà¸—à¸¢à¹Œà¸œà¸¹à¹‰à¹à¸›à¸¥à¸œà¸¥à¸à¸²à¸£à¸•à¸£à¸§à¸ˆà¸ªà¸¸à¸‚à¸ à¸²à¸ž</p>
                     <p class="text-lg md:text-xl font-bold text-navy">( ${doctorName} )</p>
                 </div>
             `;
@@ -675,7 +675,7 @@ function generateDynamicLabResults(rowData) {
                         <p class="font-bold text-navy text-sm md:text-base">${lab.label}</p>
                         <span class="text-lg font-bold text-gray-800 bg-blue-50 px-3 py-1 rounded">${val}</span>
                     </div>
-                    <p class="text-xs text-gray-500"><i class="fa-solid fa-bullseye text-blue-400 mr-1"></i> ค่าปกติ (Reference Range): <span class="font-semibold text-gray-700">${lab.normal}</span></p>
+                    <p class="text-xs text-gray-500"><i class="fa-solid fa-bullseye text-blue-400 mr-1"></i> à¸„à¹ˆà¸²à¸›à¸à¸•à¸´ (Reference Range): <span class="font-semibold text-gray-700">${lab.normal}</span></p>
                 </div>`;
                 break;
             }
@@ -698,7 +698,7 @@ function generateDynamicLabResults(rowData) {
         if (referenceTips) {
             html += `
             <div class="p-4 bg-white rounded-xl border border-blue-100 shadow-sm">
-                <p class="text-sm text-gray-600 mb-3"><i class="fa-solid fa-circle-info text-blue-500 mr-1"></i> <strong>เกณฑ์มาตรฐานผลเลือด:</strong> ค่าอ้างอิงสำหรับผลการตรวจที่ระบุในรายงานของคุณ</p>
+                <p class="text-sm text-gray-600 mb-3"><i class="fa-solid fa-circle-info text-blue-500 mr-1"></i> <strong>à¹€à¸à¸“à¸‘à¹Œà¸¡à¸²à¸•à¸£à¸à¸²à¸™à¸œà¸¥à¹€à¸¥à¸·à¸­à¸”:</strong> à¸„à¹ˆà¸²à¸­à¹‰à¸²à¸‡à¸­à¸´à¸‡à¸ªà¸³à¸«à¸£à¸±à¸šà¸œà¸¥à¸à¸²à¸£à¸•à¸£à¸§à¸ˆà¸—à¸µà¹ˆà¸£à¸°à¸šà¸¸à¹ƒà¸™à¸£à¸²à¸¢à¸‡à¸²à¸™à¸‚à¸­à¸‡à¸„à¸¸à¸“</p>
                 <ul class="text-sm">
                     ${referenceTips}
                 </ul>
@@ -719,12 +719,12 @@ function isNumericalAbnormal(valString, normalString, gender) {
 
     // Handle gender specific normal ranges
     let targetNormal = normalString;
-    if (normalString.includes('(ชาย)') && normalString.includes('(หญิง)')) {
+    if (normalString.includes('(à¸Šà¸²à¸¢)') && normalString.includes('(à¸«à¸à¸´à¸‡)')) {
         const parts = normalString.split(',');
-        if (gender === 'ชาย') {
-            targetNormal = parts.find(p => p.includes('(ชาย)')) || targetNormal;
-        } else if (gender === 'หญิง') {
-            targetNormal = parts.find(p => p.includes('(หญิง)')) || targetNormal;
+        if (gender === 'à¸Šà¸²à¸¢') {
+            targetNormal = parts.find(p => p.includes('(à¸Šà¸²à¸¢)')) || targetNormal;
+        } else if (gender === 'à¸«à¸à¸´à¸‡') {
+            targetNormal = parts.find(p => p.includes('(à¸«à¸à¸´à¸‡)')) || targetNormal;
         }
     }
 
@@ -758,14 +758,14 @@ function isNumericalAbnormal(valString, normalString, gender) {
 
 function renderTestRow(field, rowData) {
     let value = typeof field.valueKey === 'function' ? field.valueKey(rowData) : rowData[field.valueKey];
-    if (!value || typeof value !== 'string' || value.trim() === '' || value.trim() === '-' || value.trim() === 'ไม่ได้ตรวจ' || value.includes('undefined')) {
+    if (!value || typeof value !== 'string' || value.trim() === '' || value.trim() === '-' || value.trim() === 'à¹„à¸¡à¹ˆà¹„à¸”à¹‰à¸•à¸£à¸§à¸ˆ' || value.includes('undefined')) {
         return `
             <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-white rounded-xl border border-gray-100 shadow-sm transition-shadow opacity-60">
                 <div class="mb-2 sm:mb-0 flex-1">
                     <p class="font-semibold text-gray-800 text-sm md:text-base">${field.label}</p>
                 </div>
                 <div class="flex items-center sm:justify-end shrink-0 mt-2 sm:mt-0 text-gray-400 text-sm bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
-                    <i class="fa-solid fa-minus mr-1.5"></i> ไม่ได้ตรวจ
+                    <i class="fa-solid fa-minus mr-1.5"></i> à¹„à¸¡à¹ˆà¹„à¸”à¹‰à¸•à¸£à¸§à¸ˆ
                 </div>
             </div>`;
     }
@@ -775,18 +775,18 @@ function renderTestRow(field, rowData) {
     
     let isAbnormal = false;
     const checkText = (value + " " + desc).toLowerCase();
-    const checkTextNoHeight = checkText.replace(/ส่วนสูง/g, '');
+    const checkTextNoHeight = checkText.replace(/à¸ªà¹ˆà¸§à¸™à¸ªà¸¹à¸‡/g, '');
     
-    if (checkTextNoHeight.includes('ผิดปกติ') || checkTextNoHeight.includes('อ้วน') || checkTextNoHeight.includes('สูง') || checkTextNoHeight.includes('เสี่ยง') || checkTextNoHeight.includes('พบแพทย์') || checkTextNoHeight.includes('ต่ำกว่า')) {
+    if (checkTextNoHeight.includes('à¸œà¸´à¸”à¸›à¸à¸•à¸´') || checkTextNoHeight.includes('à¸­à¹‰à¸§à¸™') || checkTextNoHeight.includes('à¸ªà¸¹à¸‡') || checkTextNoHeight.includes('à¹€à¸ªà¸µà¹ˆà¸¢à¸‡') || checkTextNoHeight.includes('à¸žà¸šà¹à¸žà¸—à¸¢à¹Œ') || checkTextNoHeight.includes('à¸•à¹ˆà¸³à¸à¸§à¹ˆà¸²')) {
         isAbnormal = true;
-        if (checkTextNoHeight.includes('ไม่เข้าเกณฑ์โรคความดันโลหิตสูง') && !checkTextNoHeight.includes('ผิดปกติ') && !checkTextNoHeight.includes('ไขมัน')) isAbnormal = false;
-        if (checkTextNoHeight.includes('ไม่มีความเสี่ยง') || checkTextNoHeight.includes('ไม่พบความผิดปกติ')) {
+        if (checkTextNoHeight.includes('à¹„à¸¡à¹ˆà¹€à¸‚à¹‰à¸²à¹€à¸à¸“à¸‘à¹Œà¹‚à¸£à¸„à¸„à¸§à¸²à¸¡à¸”à¸±à¸™à¹‚à¸¥à¸«à¸´à¸•à¸ªà¸¹à¸‡') && !checkTextNoHeight.includes('à¸œà¸´à¸”à¸›à¸à¸•à¸´') && !checkTextNoHeight.includes('à¹„à¸‚à¸¡à¸±à¸™')) isAbnormal = false;
+        if (checkTextNoHeight.includes('à¹„à¸¡à¹ˆà¸¡à¸µà¸„à¸§à¸²à¸¡à¹€à¸ªà¸µà¹ˆà¸¢à¸‡') || checkTextNoHeight.includes('à¹„à¸¡à¹ˆà¸žà¸šà¸„à¸§à¸²à¸¡à¸œà¸´à¸”à¸›à¸à¸•à¸´')) {
             // Handled
         }
     }
     
-    if (value.includes('ไม่เข้าเกณฑ์โรคเบาหวาน')) isAbnormal = false;
-    if (value.includes('ปกติ') && !value.includes('ผิดปกติ') && !desc.includes('ผิดปกติ') && !desc.includes('สูง') && !desc.includes('เสี่ยง') && !desc.includes('พบแพทย์') && !desc.includes('ต่ำกว่า')) isAbnormal = false;
+    if (value.includes('à¹„à¸¡à¹ˆà¹€à¸‚à¹‰à¸²à¹€à¸à¸“à¸‘à¹Œà¹‚à¸£à¸„à¹€à¸šà¸²à¸«à¸§à¸²à¸™')) isAbnormal = false;
+    if (value.includes('à¸›à¸à¸•à¸´') && !value.includes('à¸œà¸´à¸”à¸›à¸à¸•à¸´') && !desc.includes('à¸œà¸´à¸”à¸›à¸à¸•à¸´') && !desc.includes('à¸ªà¸¹à¸‡') && !desc.includes('à¹€à¸ªà¸µà¹ˆà¸¢à¸‡') && !desc.includes('à¸žà¸šà¹à¸žà¸—à¸¢à¹Œ') && !desc.includes('à¸•à¹ˆà¸³à¸à¸§à¹ˆà¸²')) isAbnormal = false;
 
     // Smart numerical check
     if (!isAbnormal && field.normal) {
@@ -798,7 +798,7 @@ function renderTestRow(field, rowData) {
 
     const statusColor = isAbnormal ? 'text-red-600 bg-red-50 border-red-200' : 'text-green-700 bg-green-50 border-green-200';
     const icon = isAbnormal ? 'fa-circle-xmark' : 'fa-circle-check';
-    const statusText = isAbnormal ? 'ควรเฝ้าระวัง' : 'อยู่ในเกณฑ์ปกติ';
+    const statusText = isAbnormal ? 'à¸„à¸§à¸£à¹€à¸à¹‰à¸²à¸£à¸°à¸§à¸±à¸‡' : 'à¸­à¸¢à¸¹à¹ˆà¹ƒà¸™à¹€à¸à¸“à¸‘à¹Œà¸›à¸à¸•à¸´';
     
     if(field.key === 'Doctor' || field.key === 'FU') {
         const displayValue = field.key === 'Doctor' ? formatDoctorOpinion(value) : value;
@@ -807,14 +807,14 @@ function renderTestRow(field, rowData) {
         <div class="p-3 sm:p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow transition-shadow ${isAbnormal ? 'border-l-4 border-l-red-500' : 'border-l-4 border-l-green-500'}">
             <p class="font-semibold text-gray-800 text-sm md:text-base mb-2">${field.label}</p>
             <div class="text-sm font-medium ${field.key==='Doctor'?'text-navy':'text-gray-700'}">${displayValue}</div>
-            ${desc && desc.trim() !== '' ? `<p class="text-xs text-blue-600 mt-3 pt-2 border-t border-gray-100"><i class="fa-solid fa-calendar-check mr-1"></i> นัดพบแพทย์: ${desc}</p>` : ''}
+            ${desc && desc.trim() !== '' ? `<p class="text-xs text-blue-600 mt-3 pt-2 border-t border-gray-100"><i class="fa-solid fa-calendar-check mr-1"></i> à¸™à¸±à¸”à¸žà¸šà¹à¸žà¸—à¸¢à¹Œ: ${desc}</p>` : ''}
             ${hiddenFlag}
         </div>
         `;
     }
 
     const refHtml = field.refHtml ? field.refHtml : '';
-    const normalRangeHtml = field.normal ? `<span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded border border-blue-200 mt-2 mr-2"><i class="fa-solid fa-flask mr-1"></i> ค่าปกติ: <strong>${field.normal}</strong></span>` : '';
+    const normalRangeHtml = field.normal ? `<span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded border border-blue-200 mt-2 mr-2"><i class="fa-solid fa-flask mr-1"></i> à¸„à¹ˆà¸²à¸›à¸à¸•à¸´: <strong>${field.normal}</strong></span>` : '';
 
     return `
         <div class="flex flex-col sm:flex-row sm:items-start justify-between p-3 sm:p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow transition-shadow">
@@ -856,7 +856,7 @@ function renderStaffDashboard() {
     let normalCount = 0;
     
     let ageGroups = { '<30': 0, '30-40': 0, '41-50': 0, '>50': 0 };
-    let abnormalTests = { 'เสี่ยงเบาหวาน (DM)': 0, 'เสี่ยงความดัน (HT)': 0, 'ไขมันผิดปกติ (DLP)': 0, 'มีภาวะอ้วน (BMI)': 0 };
+    let abnormalTests = { 'à¹€à¸ªà¸µà¹ˆà¸¢à¸‡à¹€à¸šà¸²à¸«à¸§à¸²à¸™ (DM)': 0, 'à¹€à¸ªà¸µà¹ˆà¸¢à¸‡à¸„à¸§à¸²à¸¡à¸”à¸±à¸™ (HT)': 0, 'à¹„à¸‚à¸¡à¸±à¸™à¸œà¸´à¸”à¸›à¸à¸•à¸´ (DLP)': 0, 'à¸¡à¸µà¸ à¸²à¸§à¸°à¸­à¹‰à¸§à¸™ (BMI)': 0 };
     
     AppState.patients.forEach(p => {
         if (!p.isHealthy) ncdCount++;
@@ -864,13 +864,13 @@ function renderStaffDashboard() {
         
         const r = p.rowData;
         
-        if (r['คัดกรอง NCD (DM)'] && r['คัดกรอง NCD (DM)'].includes('ผิดปกติ')) abnormalTests['เสี่ยงเบาหวาน (DM)']++;
-        if (r['คัดกรอง NCD (HT)'] && r['คัดกรอง NCD (HT)'].includes('ผิดปกติ')) abnormalTests['เสี่ยงความดัน (HT)']++;
-        if (r['คัดกรอง NCD (DLP)'] && r['คัดกรอง NCD (DLP)'].includes('ผิดปกติ')) {
-            abnormalTests['ไขมันผิดปกติ (DLP)']++;
+        if (r['à¸„à¸±à¸”à¸à¸£à¸­à¸‡ NCD (DM)'] && r['à¸„à¸±à¸”à¸à¸£à¸­à¸‡ NCD (DM)'].includes('à¸œà¸´à¸”à¸›à¸à¸•à¸´')) abnormalTests['à¹€à¸ªà¸µà¹ˆà¸¢à¸‡à¹€à¸šà¸²à¸«à¸§à¸²à¸™ (DM)']++;
+        if (r['à¸„à¸±à¸”à¸à¸£à¸­à¸‡ NCD (HT)'] && r['à¸„à¸±à¸”à¸à¸£à¸­à¸‡ NCD (HT)'].includes('à¸œà¸´à¸”à¸›à¸à¸•à¸´')) abnormalTests['à¹€à¸ªà¸µà¹ˆà¸¢à¸‡à¸„à¸§à¸²à¸¡à¸”à¸±à¸™ (HT)']++;
+        if (r['à¸„à¸±à¸”à¸à¸£à¸­à¸‡ NCD (DLP)'] && r['à¸„à¸±à¸”à¸à¸£à¸­à¸‡ NCD (DLP)'].includes('à¸œà¸´à¸”à¸›à¸à¸•à¸´')) {
+            abnormalTests['à¹„à¸‚à¸¡à¸±à¸™à¸œà¸´à¸”à¸›à¸à¸•à¸´ (DLP)']++;
             lipidCount++;
         }
-        if (r['แปลผล BMI'] && r['แปลผล BMI'].includes('อ้วน')) abnormalTests['มีภาวะอ้วน (BMI)']++;
+        if (r['à¹à¸›à¸¥à¸œà¸¥ BMI'] && r['à¹à¸›à¸¥à¸œà¸¥ BMI'].includes('à¸­à¹‰à¸§à¸™')) abnormalTests['à¸¡à¸µà¸ à¸²à¸§à¸°à¸­à¹‰à¸§à¸™ (BMI)']++;
         
         const age = parseInt(p.age);
         if (!isNaN(age)) {
@@ -891,14 +891,14 @@ function renderStaffDashboard() {
     const thead = document.querySelector('thead tr');
     if(thead) {
         thead.innerHTML = `
-            <th class="px-4 py-3 text-left font-semibold tracking-wider">เลขบัตรประชาชน</th>
-            <th class="px-4 py-3 text-left font-semibold tracking-wider">ชื่อ-นามสกุล</th>
-            <th class="px-4 py-3 text-left font-semibold tracking-wider">อายุ</th>
-            <th class="px-4 py-3 text-left font-semibold tracking-wider">เพศ</th>
-            <th class="px-4 py-3 text-left font-semibold tracking-wider">สถานะภาพรวม</th>
+            <th class="px-4 py-3 text-left font-semibold tracking-wider">à¹€à¸¥à¸‚à¸šà¸±à¸•à¸£à¸›à¸£à¸°à¸Šà¸²à¸Šà¸™</th>
+            <th class="px-4 py-3 text-left font-semibold tracking-wider">à¸Šà¸·à¹ˆà¸­-à¸™à¸²à¸¡à¸ªà¸à¸¸à¸¥</th>
+            <th class="px-4 py-3 text-left font-semibold tracking-wider">à¸­à¸²à¸¢à¸¸</th>
+            <th class="px-4 py-3 text-left font-semibold tracking-wider">à¹€à¸žà¸¨</th>
+            <th class="px-4 py-3 text-left font-semibold tracking-wider">à¸ªà¸–à¸²à¸™à¸°à¸ à¸²à¸žà¸£à¸§à¸¡</th>
             <th class="px-4 py-3 text-left font-semibold tracking-wider">BMI</th>
             <th class="px-4 py-3 text-left font-semibold tracking-wider">BP</th>
-            <th class="px-4 py-3 text-left font-semibold tracking-wider">ความเห็นแพทย์ (ย่อ)</th>
+            <th class="px-4 py-3 text-left font-semibold tracking-wider">à¸„à¸§à¸²à¸¡à¹€à¸«à¹‡à¸™à¹à¸žà¸—à¸¢à¹Œ (à¸¢à¹ˆà¸­)</th>
         `;
     }
     
@@ -917,7 +917,7 @@ function renderCharts(ageData, abnormalData) {
         data: {
             labels: Object.keys(ageData),
             datasets: [{
-                label: 'จำนวน (คน)',
+                label: 'à¸ˆà¸³à¸™à¸§à¸™ (à¸„à¸™)',
                 data: Object.values(ageData),
                 backgroundColor: 'rgba(59, 130, 246, 0.7)',
                 borderColor: 'rgb(37, 99, 235)',
@@ -966,16 +966,16 @@ function renderStaffTable() {
     const end = start + itemsPerPage;
     const paginated = filteredPatients.slice(start, end);
     
-    if(DOM.tableCount) DOM.tableCount.textContent = `${start + 1}-${Math.min(end, filteredPatients.length)} จาก ${filteredPatients.length}`;
+    if(DOM.tableCount) DOM.tableCount.textContent = `${start + 1}-${Math.min(end, filteredPatients.length)} à¸ˆà¸²à¸ ${filteredPatients.length}`;
     DOM.tableBody.innerHTML = '';
     
     paginated.forEach(p => {
         const r = p.rowData;
         const statusBadge = p.isHealthy 
-            ? `<span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">ปกติ</span>`
-            : `<span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">พบความเสี่ยง</span>`;
+            ? `<span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">à¸›à¸à¸•à¸´</span>`
+            : `<span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">à¸žà¸šà¸„à¸§à¸²à¸¡à¹€à¸ªà¸µà¹ˆà¸¢à¸‡</span>`;
             
-        let docOpinion = r['ความเห็นแพทย์'] || '-';
+        let docOpinion = r['à¸„à¸§à¸²à¸¡à¹€à¸«à¹‡à¸™à¹à¸žà¸—à¸¢à¹Œ'] || '-';
         if (docOpinion.length > 30) docOpinion = docOpinion.substring(0, 30) + '...';
             
         const tr = document.createElement('tr');
@@ -1001,173 +1001,91 @@ function renderStaffTable() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
-\ n \ n a s y n c   f u n c t i o n   f e t c h S t a f f U p l o a d e d F i l e s ( c i t i z e n I d )   { 
-         i f   ( ! D O M . u p l o a d e d F i l e s L i s t )   r e t u r n ; 
-         D O M . u p l o a d e d F i l e s L i s t . i n n e r H T M L   =   ' < d i v   c l a s s = \  
- f l e x  
- i t e m s - c e n t e r  
- t e x t - g r a y - 4 0 0  
- i t a l i c \ > < i   c l a s s = \ f a - s o l i d  
- f a - s p i n n e r  
- f a - s p i n  
- m r - 2 \ > < / i >   3%1B+%. . . < / d i v > ' ; 
-         
-         i f   ( ! s u p a b a s e C l i e n t )   r e t u r n ; 
-         
-         t r y   { 
-                 c o n s t   {   d a t a ,   e r r o r   }   =   a w a i t   s u p a b a s e C l i e n t 
-                         . f r o m ( ' p a t i e n t _ f i l e s ' ) 
-                         . s e l e c t ( ' * ' ) 
-                         . e q ( ' c i t i z e n _ i d ' ,   c i t i z e n I d ) 
-                         . o r d e r ( ' c r e a t e d _ a t ' ,   {   a s c e n d i n g :   f a l s e   } ) ; 
-                         
-                 i f   ( e r r o r )   t h r o w   e r r o r ; 
-                 
-                 i f   ( ! d a t a   | |   d a t a . l e n g t h   = = =   0 )   { 
-                         D O M . u p l o a d e d F i l e s L i s t . i n n e r H T M L   =   ' < d i v   c l a s s = \ t e x t - g r a y - 4 0 0  
- i t a l i c  
- t e x t - s m  
- p y - 2 \ > "1D!H!5D%LA< / d i v > ' ; 
-                         r e t u r n ; 
-                 } 
-                 
-                 D O M . u p l o a d e d F i l e s L i s t . i n n e r H T M L   =   d a t a . m a p ( f i l e   = >   \ 
-                         < d i v   c l a s s = \ f l e x  
- i t e m s - c e n t e r  
- j u s t i f y - b e t w e e n  
- p - 3  
- b g - w h i t e  
- b o r d e r  
- r o u n d e d - l g  
- s h a d o w - s m  
- m b - 2 \ > 
-                                 < d i v   c l a s s = \ f l e x  
- i t e m s - c e n t e r \ > 
-                                         < i   c l a s s = \ f a - s o l i d  
- f a - f i l e - p d f  
- t e x t - r e d - 5 0 0  
- t e x t - l g  
- m r - 3 \ > < / i > 
-                                         < d i v > 
-                                                 < p   c l a s s = \ f o n t - m e d i u m  
- t e x t - n a v y  
- t e x t - s m \ > \ < / p > 
-                                                 < p   c l a s s = \ t e x t - x s  
- t e x t - g r a y - 4 0 0 \ > \ < / p > 
-                                         < / d i v > 
-                                 < / d i v > 
-                                 < a   h r e f = \ \ \   t a r g e t = \ _ b l a n k \   c l a s s = \ t e x t - b l u e - 5 0 0  
- h o v e r : t e x t - b l u e - 7 0 0  
- b g - b l u e - 5 0  
- h o v e r : b g - b l u e - 1 0 0  
- p x - 3  
- p y - 1 . 5  
- r o u n d e d - l g  
- t r a n s i t i o n - c o l o r s  
- t e x t - x s  
- f o n t - m e d i u m \ > 
-                                         < i   c l a s s = \ f a - s o l i d  
- f a - e y e  
- m r - 1 \ > < / i >   9D%L
-                                 < / a > 
-                         < / d i v > 
-                 \ ) . j o i n ( ' ' ) ; 
-                 
-         }   c a t c h   ( e r r o r )   { 
-                 c o n s o l e . e r r o r ( ' F e t c h   f i l e s   e r r o r : ' ,   e r r o r ) ; 
-                 D O M . u p l o a d e d F i l e s L i s t . i n n e r H T M L   =   ' < d i v   c l a s s = \ t e x t - r e d - 5 0 0  
- t e x t - s m \ > D!H*2!2#6I-!9%D%LDI< / d i v > ' ; 
-         } 
- } 
- 
- a s y n c   f u n c t i o n   f e t c h P a t i e n t D o c u m e n t s ( c i t i z e n I d )   { 
-         i f   ( ! D O M . p a t i e n t D o c u m e n t s S e c t i o n   | |   ! D O M . p a t i e n t D o c u m e n t s C o n t a i n e r )   r e t u r n ; 
-         
-         / /   H i d e   i n i t i a l l y 
-         D O M . p a t i e n t D o c u m e n t s S e c t i o n . c l a s s L i s t . a d d ( ' h i d d e n ' ) ; 
-         D O M . p a t i e n t D o c u m e n t s C o n t a i n e r . i n n e r H T M L   =   ' < d i v   c l a s s = \ t e x t - s m  
- t e x t - g r a y - 4 0 0  
- i t a l i c  
- c o l - s p a n - f u l l \ > < i   c l a s s = \ f a - s o l i d  
- f a - s p i n n e r  
- f a - s p i n  
- m r - 2 \ > < / i >   3%1#'*-@-*2#. . . < / d i v > ' ; 
-         
-         i f   ( ! s u p a b a s e C l i e n t )   r e t u r n ; 
-         
-         t r y   { 
-                 c o n s t   {   d a t a ,   e r r o r   }   =   a w a i t   s u p a b a s e C l i e n t 
-                         . f r o m ( ' p a t i e n t _ f i l e s ' ) 
-                         . s e l e c t ( ' * ' ) 
-                         . e q ( ' c i t i z e n _ i d ' ,   c i t i z e n I d ) 
-                         . o r d e r ( ' c r e a t e d _ a t ' ,   {   a s c e n d i n g :   f a l s e   } ) ; 
-                         
-                 i f   ( e r r o r )   t h r o w   e r r o r ; 
-                 
-                 i f   ( d a t a   & &   d a t a . l e n g t h   >   0 )   { 
-                         D O M . p a t i e n t D o c u m e n t s S e c t i o n . c l a s s L i s t . r e m o v e ( ' h i d d e n ' ) ; 
-                         
-                         / /   M a p   i c o n s   b a s e d   o n   d o c u m e n t   t y p e 
-                         c o n s t   g e t I c o n   =   ( t y p e )   = >   { 
-                                 i f ( t y p e . i n c l u d e s ( ' X - r a y ' )   | |   t y p e . i n c l u d e s ( ' B o n e ' )   | |   t y p e . i n c l u d e s ( ' U l t r a s o u n d ' ) )   r e t u r n   ' f a - x - r a y   t e x t - i n d i g o - 5 0 0 ' ; 
-                                 i f ( t y p e . i n c l u d e s ( ' B o d y ' ) )   r e t u r n   ' f a - p e r s o n - w a l k i n g   t e x t - o r a n g e - 5 0 0 ' ; 
-                                 r e t u r n   ' f a - f l a s k   t e x t - b l u e - 5 0 0 ' ; 
-                         } ; 
-                         
-                         D O M . p a t i e n t D o c u m e n t s C o n t a i n e r . i n n e r H T M L   =   d a t a . m a p ( f i l e   = >   \ 
-                                 < a   h r e f = \ \ \   t a r g e t = \ _ b l a n k \   c l a s s = \ f l e x  
- i t e m s - c e n t e r  
- p - 4  
- b g - g r a y - 5 0  
- h o v e r : b g - b l u e - 5 0  
- b o r d e r  
- b o r d e r - g r a y - 2 0 0  
- h o v e r : b o r d e r - b l u e - 2 0 0  
- r o u n d e d - x l  
- t r a n s i t i o n - a l l  
- g r o u p  
- s h a d o w - s m \ > 
-                                         < d i v   c l a s s = \ w - 1 0  
- h - 1 0  
- r o u n d e d - f u l l  
- b g - w h i t e  
- f l e x  
- i t e m s - c e n t e r  
- j u s t i f y - c e n t e r  
- s h a d o w - s m  
- s h r i n k - 0  
- m r - 3  
- g r o u p - h o v e r : s c a l e - 1 1 0  
- t r a n s i t i o n - t r a n s f o r m \ > 
-                                                 < i   c l a s s = \ f a - s o l i d  
- \  
- t e x t - l g \ > < / i > 
-                                         < / d i v > 
-                                         < d i v   c l a s s = \ f l e x - 1  
- o v e r f l o w - h i d d e n \ > 
-                                                 < h 4   c l a s s = \ f o n t - b o l d  
- t e x t - g r a y - 8 0 0  
- t e x t - s m  
- t r u n c a t e  
- g r o u p - h o v e r : t e x t - b l u e - 7 0 0  
- t r a n s i t i o n - c o l o r s \ > \ < / h 4 > 
-                                                 < p   c l a s s = \ t e x t - x s  
- t e x t - g r a y - 5 0 0  
- m t - 0 . 5  
- t r u n c a t e \ > \   -   A0@7H-9%< / p > 
-                                         < / d i v > 
-                                         < i   c l a s s = \ f a - s o l i d  
- f a - d o w n l o a d  
- t e x t - g r a y - 3 0 0  
- g r o u p - h o v e r : t e x t - b l u e - 5 0 0  
- m l - 2 \ > < / i > 
-                                 < / a > 
-                         \ ) . j o i n ( ' ' ) ; 
-                 } 
-                 
-         }   c a t c h   ( e r r o r )   { 
-                 c o n s o l e . e r r o r ( ' F e t c h   p a t i e n t   d o c u m e n t s   e r r o r : ' ,   e r r o r ) ; 
-         } 
- } 
-  
- 
+
+async function fetchStaffUploadedFiles(citizenId) {
+    if (!DOM.uploadedFilesList) return;
+    DOM.uploadedFilesList.innerHTML = '<div class="flex items-center text-gray-400 italic"><i class="fa-solid fa-spinner fa-spin mr-2"></i> กำลังโหลด...</div>';
+    
+    if (!supabaseClient) return;
+    
+    try {
+        const { data, error } = await supabaseClient
+            .from('patient_files')
+            .select('*')
+            .eq('citizen_id', citizenId)
+            .order('created_at', { ascending: false });
+            
+        if (error) throw error;
+        
+        if (!data || data.length === 0) {
+            DOM.uploadedFilesList.innerHTML = '<div class="text-gray-400 italic text-sm py-2">ยังไม่มีไฟล์แนบ</div>';
+            return;
+        }
+        
+        DOM.uploadedFilesList.innerHTML = data.map(file => `
+            <div class="flex items-center justify-between p-3 bg-white border rounded-lg shadow-sm mb-2">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-file-pdf text-red-500 text-lg mr-3"></i>
+                    <div>
+                        <p class="font-medium text-navy text-sm">${file.document_type}</p>
+                        <p class="text-xs text-gray-400">${new Date(file.created_at).toLocaleString('th-TH')}</p>
+                    </div>
+                </div>
+                <a href="${file.file_url}" target="_blank" class="text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors text-xs font-medium">
+                    <i class="fa-solid fa-eye mr-1"></i> ดูไฟล์
+                </a>
+            </div>
+        `).join('');
+        
+    } catch (error) {
+        console.error('Fetch files error:', error);
+        DOM.uploadedFilesList.innerHTML = '<div class="text-red-500 text-sm">ไม่สามารถดึงข้อมูลไฟล์ได้</div>';
+    }
+}
+
+async function fetchPatientDocuments(citizenId) {
+    if (!DOM.patientDocumentsSection || !DOM.patientDocumentsContainer) return;
+    
+    // Hide initially
+    DOM.patientDocumentsSection.classList.add('hidden');
+    DOM.patientDocumentsContainer.innerHTML = '<div class="text-sm text-gray-400 italic col-span-full"><i class="fa-solid fa-spinner fa-spin mr-2"></i> กำลังตรวจสอบเอกสาร...</div>';
+    
+    if (!supabaseClient) return;
+    
+    try {
+        const { data, error } = await supabaseClient
+            .from('patient_files')
+            .select('*')
+            .eq('citizen_id', citizenId)
+            .order('created_at', { ascending: false });
+            
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+            DOM.patientDocumentsSection.classList.remove('hidden');
+            
+            // Map icons based on document type
+            const getIcon = (type) => {
+                if(type.includes('X-ray') || type.includes('Bone') || type.includes('Ultrasound')) return 'fa-x-ray text-indigo-500';
+                if(type.includes('Body')) return 'fa-person-walking text-orange-500';
+                return 'fa-flask text-blue-500';
+            };
+            
+            DOM.patientDocumentsContainer.innerHTML = data.map(file => `
+                <a href="${file.file_url}" target="_blank" class="flex items-center p-4 bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-200 rounded-xl transition-all group shadow-sm">
+                    <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm shrink-0 mr-3 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid ${getIcon(file.document_type)} text-lg"></i>
+                    </div>
+                    <div class="flex-1 overflow-hidden">
+                        <h4 class="font-bold text-gray-800 text-sm truncate group-hover:text-blue-700 transition-colors">${file.document_type}</h4>
+                        <p class="text-xs text-gray-500 mt-0.5 truncate">${new Date(file.created_at).toLocaleDateString('th-TH')} - แตะเพื่อดูผล</p>
+                    </div>
+                    <i class="fa-solid fa-download text-gray-300 group-hover:text-blue-500 ml-2"></i>
+                </a>
+            `).join('');
+        }
+        
+    } catch (error) {
+        console.error('Fetch patient documents error:', error);
+    }
+}
