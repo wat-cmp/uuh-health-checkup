@@ -11,8 +11,12 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- FontAwesome -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -80,6 +84,25 @@
         <div id="loading-overlay" class="absolute inset-0 bg-white z-40 flex flex-col items-center justify-center">
             <i class="fa-solid fa-circle-notch fa-spin text-5xl text-blue-500"></i>
             <p class="mt-4 text-navy font-medium animate-pulse">กำลังโหลดข้อมูลระบบ...</p>
+        </div>
+
+        <!-- Staff Login Modal -->
+        <div id="staff-login-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center">
+            <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 border border-blue-100 relative overflow-hidden slide-in">
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-600 to-indigo-600"></div>
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-600 text-2xl">
+                        <i class="fa-solid fa-user-nurse"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-navy">เข้าสู่ระบบสำหรับเจ้าหน้าที่</h2>
+                    <p class="text-sm text-gray-500 mt-1">กรุณาใส่รหัสผ่านเพื่อเข้าใช้งาน</p>
+                </div>
+                <form id="staff-login-form">
+                    <input type="password" id="staff-password" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none mb-4 text-center tracking-widest text-lg" placeholder="รหัสผ่าน" required>
+                    <p id="staff-login-error" class="hidden text-red-500 text-xs text-center mb-4"><i class="fa-solid fa-triangle-exclamation mr-1"></i> รหัสผ่านไม่ถูกต้อง</p>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-colors shadow-md">เข้าสู่ระบบ</button>
+                </form>
+            </div>
         </div>
 
         <!-- ==================== STAFF DASHBOARD ==================== -->
@@ -182,8 +205,62 @@
                     </div>
                 </div>
 
-                <div class="max-w-4xl mx-auto px-4 sm:px-6 mt-[-2rem] relative z-20">
-                    <div id="p-status-card" class="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-8 border-t-8 border-green-500">
+                <div class="p-6 overflow-y-auto max-h-[70vh] bg-slate-50 relative">
+                    <!-- Upload PDF Section (New) -->
+                    <div class="mb-8 bg-white rounded-2xl p-5 border border-blue-100 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                        <h3 class="text-lg font-bold text-navy mb-4 flex items-center"><i class="fa-solid fa-cloud-arrow-up mr-2 text-blue-500"></i> อัปโหลดเอกสารผลตรวจ (PDF)</h3>
+                        
+                        <form id="upload-pdf-form" class="space-y-4">
+                            <input type="hidden" id="upload-citizen-id">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">เลือกประเภทเอกสาร</label>
+                                    <select id="upload-doc-type" class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50" required>
+                                        <option value="" disabled selected>-- กรุณาเลือก --</option>
+                                        <optgroup label="แผนก X-ray/รังสีวิทยา">
+                                            <option value="Chest X-ray">Chest X-ray</option>
+                                            <option value="Ultrasound">Ultrasound</option>
+                                            <option value="Bone Density">Bone Density</option>
+                                        </optgroup>
+                                        <optgroup label="แผนกกายภาพบำบัด">
+                                            <option value="Body Composition">Body Composition</option>
+                                        </optgroup>
+                                        <optgroup label="แผนกห้องปฏิบัติการ (Lab)">
+                                            <option value="Lab พื้นฐาน">Lab พื้นฐาน</option>
+                                            <option value="CBC">CBC</option>
+                                            <option value="UA">UA</option>
+                                            <option value="Lab Chem">Lab Chem</option>
+                                            <option value="Lab Pap Smear">Lab Pap Smear</option>
+                                            <option value="Lab Thyroid">Lab Thyroid</option>
+                                            <option value="HPV DNA">HPV DNA</option>
+                                            <option value="Tumor Marker">Tumor Marker</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">เลือกไฟล์ PDF</label>
+                                    <input type="file" id="upload-file" accept="application/pdf" class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-white file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
+                                </div>
+                            </div>
+                            <div class="flex justify-end pt-2">
+                                <button type="submit" id="btn-upload" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg text-sm shadow-sm transition-colors flex items-center">
+                                    <i class="fa-solid fa-upload mr-2"></i> อัปโหลดไฟล์
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- List uploaded files -->
+                        <div class="mt-6">
+                            <h4 class="text-sm font-semibold text-gray-700 mb-2 border-b pb-1">ไฟล์ที่แนบไว้แล้ว:</h4>
+                            <div id="uploaded-files-list" class="space-y-2 text-sm text-gray-600 min-h-[40px]">
+                                <div class="flex items-center text-gray-400 italic"><i class="fa-solid fa-spinner fa-spin mr-2"></i> กำลังโหลด...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Overall Status Alert Card -->
+                    <div id="p-status-card" class="bg-white rounded-2xl shadow-sm p-6 mb-8 border-t-4 border-green-500">
                         <div class="flex flex-col sm:flex-row items-center sm:items-start justify-between">
                             <div>
                                 <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-2">ภาพรวมสุขภาพของคุณ</h3>

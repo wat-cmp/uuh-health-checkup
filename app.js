@@ -17,7 +17,15 @@ const AppState = {
 
 // --- Configuration ---
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQKH6BmbFctC-wCBfo0vMYCDfGkwvO9rCSX1vv9AtJgJNysoGptpaKm4rEZrnbRK6CFOuXKGFzOQ4u_/pub?gid=0&single=true&output=csv';
-const STAFF_KEY = 'YWRtaW4xMjM0'; // encoded
+const STAFF_KEY = 'YWRtaW4xMjM0'; // encoded admin1234
+
+// Supabase Configuration
+const SUPABASE_URL = 'https://pirjgwpxkvziakoswqeg.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpcmpnd3hwa3Z6aWFrb3N3cWVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NTY2MDAsImV4cCI6MjA5ODAzMjYwMH0.M_RZXbX3aOG1LoWzV3s-JYfoDS2amWF6YelJV_cTpvQ';
+let supabaseClient = null;
+if (typeof supabase !== 'undefined') {
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
 function _dk(k){return atob(k);}
 
 // --- Client-side Data Fetching ---
@@ -98,6 +106,24 @@ const DOM = {
     btnStaffView: document.getElementById('btn-staff-view'),
     staffView: document.getElementById('staff-view'),
     patientView: document.getElementById('patient-view'),
+    
+    // Staff Login Modal
+    staffLoginModal: document.getElementById('staff-login-modal'),
+    staffLoginForm: document.getElementById('staff-login-form'),
+    staffPasswordInput: document.getElementById('staff-password'),
+    staffLoginError: document.getElementById('staff-login-error'),
+    
+    // Upload UI
+    uploadPdfForm: document.getElementById('upload-pdf-form'),
+    uploadCitizenId: document.getElementById('upload-citizen-id'),
+    uploadDocType: document.getElementById('upload-doc-type'),
+    uploadFile: document.getElementById('upload-file'),
+    btnUpload: document.getElementById('btn-upload'),
+    uploadedFilesList: document.getElementById('uploaded-files-list'),
+    
+    // Patient Documents
+    patientDocumentsSection: document.getElementById('patient-documents-section'),
+    patientDocumentsContainer: document.getElementById('patient-documents-container'),
     
     patientLogin: document.getElementById('patient-login'),
     patientDashboard: document.getElementById('patient-dashboard'),
@@ -258,27 +284,10 @@ async function init() {
 }
 
 async function authenticateStaff() {
-    const password = prompt('กรุณากรอกรหัสผ่านเพื่อเข้าใช้งานระบบสำหรับเจ้าหน้าที่:');
-    if (!password) {
-        if(DOM.loadingOverlay) DOM.loadingOverlay.innerHTML = '<p class="text-red-500 font-bold">คุณไม่ได้กรอกรหัสผ่าน ไม่สามารถเข้าใช้งานได้</p>';
-        return;
-    }
-
-    if (password !== _dk(STAFF_KEY)) {
-        alert('รหัสผ่านไม่ถูกต้อง');
-        if(DOM.loadingOverlay) DOM.loadingOverlay.innerHTML = '<p class="text-red-500 font-bold">รหัสผ่านไม่ถูกต้อง กรุณารีเฟรชหน้าเว็บแล้วลองใหม่</p>';
-        return;
-    }
-
-    try {
-        const data = await getPatientsData();
-        AppState.patients = data;
-        AppState.pagination.filteredPatients = [...AppState.patients];
-        AppState.dataLoaded = true;
-        if(DOM.loadingOverlay) DOM.loadingOverlay.classList.add('hidden');
-    } catch (error) {
-        console.error("Staff auth error:", error);
-        if(DOM.loadingOverlay) DOM.loadingOverlay.innerHTML = '<p class="text-red-500 font-bold">เกิดข้อผิดพลาดในการโหลดข้อมูล กรุณารีเฟรชหน้าเว็บแล้วลองใหม่</p>';
+    // We don't use prompt() anymore. We wait for the modal form submission.
+    if (DOM.staffLoginModal) {
+        DOM.staffLoginModal.classList.remove('hidden');
+        if (DOM.loadingOverlay) DOM.loadingOverlay.classList.add('hidden');
     }
 }
 
@@ -345,6 +354,121 @@ function setupEventListeners() {
             renderStaffTable();
         }
     });
+
+    if (DOM.staffLoginForm) {
+        DOM.staffLoginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const pwd = DOM.staffPasswordInput.value;
+            if (pwd === _dk(STAFF_KEY)) {
+                if(DOM.staffLoginError) DOM.staffLoginError.classList.add('hidden');
+                if (DOM.loadingOverlay) {
+                    DOM.loadingOverlay.classList.remove('hidden');
+                    DOM.loadingOverlay.innerHTML = `
+                        <i class="fa-solid fa-circle-notch fa-spin text-5xl text-blue-500"></i>
+                        <p class="mt-4 text-navy font-medium animate-pulse">กำลังตรวจสอบรหัสผ่านและโหลดข้อมูลระบบ...</p>
+                    `;
+                }
+                
+                try {
+                    const data = await getPatientsData();
+                    AppState.patients = data;
+                    AppState.pagination.filteredPatients = [...AppState.patients];
+                    AppState.dataLoaded = true;
+                    DOM.staffLoginModal.classList.add('hidden');
+                    if(DOM.loadingOverlay) DOM.loadingOverlay.classList.add('hidden');
+                    updateViewMode();
+                } catch (error) {
+                    console.error("Staff auth error:", error);
+                    if (DOM.staffLoginError) {
+                        DOM.staffLoginError.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i> เกิดข้อผิดพลาดในการโหลดข้อมูล';
+                        DOM.staffLoginError.classList.remove('hidden');
+                    }
+                    if(DOM.loadingOverlay) DOM.loadingOverlay.classList.add('hidden');
+                }
+            } else {
+                if(DOM.staffLoginError) {
+                    DOM.staffLoginError.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i> รหัสผ่านไม่ถูกต้อง';
+                    DOM.staffLoginError.classList.remove('hidden');
+                }
+            }
+        });
+    }
+
+    if (DOM.uploadPdfForm) {
+        DOM.uploadPdfForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!supabaseClient) {
+                Swal.fire({ icon: 'error', title: 'ไม่สามารถอัปโหลดได้', text: 'ไม่ได้เชื่อมต่อกับ Supabase' });
+                return;
+            }
+            
+            const citizenId = DOM.uploadCitizenId.value;
+            const docType = DOM.uploadDocType.value;
+            const file = DOM.uploadFile.files[0];
+            
+            if (!citizenId || !docType || !file) return;
+            
+            DOM.btnUpload.disabled = true;
+            DOM.btnUpload.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> กำลังอัปโหลด...';
+            
+            try {
+                // Upload to Storage
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${citizenId}_${docType.replace(/ /g, '_')}_${Date.now()}.${fileExt}`;
+                const filePath = `${citizenId}/${fileName}`;
+                
+                const { data: uploadData, error: uploadError } = await supabaseClient
+                    .storage
+                    .from('patient_documents')
+                    .upload(filePath, file);
+                    
+                if (uploadError) throw uploadError;
+                
+                // Get Public URL
+                const { data: urlData } = supabaseClient
+                    .storage
+                    .from('patient_documents')
+                    .getPublicUrl(filePath);
+                
+                const fileUrl = urlData.publicUrl;
+                
+                // Insert into Database
+                const { error: dbError } = await supabaseClient
+                    .from('patient_files')
+                    .insert({
+                        citizen_id: citizenId,
+                        document_type: docType,
+                        file_url: fileUrl,
+                        file_name: file.name
+                    });
+                    
+                if (dbError) throw dbError;
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'อัปโหลดสำเร็จ',
+                    text: `อัปโหลดไฟล์ ${docType} ของผู้ป่วยเรียบร้อยแล้ว`,
+                    confirmButtonColor: '#2563eb'
+                });
+                
+                DOM.uploadPdfForm.reset();
+                DOM.uploadCitizenId.value = citizenId; 
+                
+                fetchStaffUploadedFiles(citizenId);
+                
+            } catch (error) {
+                console.error('Upload Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: error.message || 'ไม่สามารถอัปโหลดไฟล์ได้',
+                });
+            } finally {
+                DOM.btnUpload.disabled = false;
+                DOM.btnUpload.innerHTML = '<i class="fa-solid fa-upload mr-2"></i> อัปโหลดไฟล์';
+            }
+        });
+    }
 }
 
 function updateViewMode() {
@@ -435,9 +559,17 @@ function viewPatient(patient) {
         AppState.staffMode = false;
         updateViewMode();
         DOM.btnLogout.innerHTML = '<i class="fa-solid fa-arrow-left mr-2"></i> กลับหน้าแดชบอร์ด';
+        
+        // Setup staff upload form
+        if(DOM.uploadCitizenId) DOM.uploadCitizenId.value = patient.rawId;
+        fetchStaffUploadedFiles(patient.rawId);
+        
     } else {
         DOM.patientDashboard.classList.remove('hidden');
         DOM.btnLogout.innerHTML = '<i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> ออกจากระบบ';
+        
+        // Fetch patient documents
+        fetchPatientDocuments(patient.rawId);
     }
     
     renderPatientDashboard();
@@ -869,3 +1001,173 @@ function renderStaffTable() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+\ n \ n a s y n c   f u n c t i o n   f e t c h S t a f f U p l o a d e d F i l e s ( c i t i z e n I d )   { 
+         i f   ( ! D O M . u p l o a d e d F i l e s L i s t )   r e t u r n ; 
+         D O M . u p l o a d e d F i l e s L i s t . i n n e r H T M L   =   ' < d i v   c l a s s = \  
+ f l e x  
+ i t e m s - c e n t e r  
+ t e x t - g r a y - 4 0 0  
+ i t a l i c \ > < i   c l a s s = \ f a - s o l i d  
+ f a - s p i n n e r  
+ f a - s p i n  
+ m r - 2 \ > < / i >   3%1B+%. . . < / d i v > ' ; 
+         
+         i f   ( ! s u p a b a s e C l i e n t )   r e t u r n ; 
+         
+         t r y   { 
+                 c o n s t   {   d a t a ,   e r r o r   }   =   a w a i t   s u p a b a s e C l i e n t 
+                         . f r o m ( ' p a t i e n t _ f i l e s ' ) 
+                         . s e l e c t ( ' * ' ) 
+                         . e q ( ' c i t i z e n _ i d ' ,   c i t i z e n I d ) 
+                         . o r d e r ( ' c r e a t e d _ a t ' ,   {   a s c e n d i n g :   f a l s e   } ) ; 
+                         
+                 i f   ( e r r o r )   t h r o w   e r r o r ; 
+                 
+                 i f   ( ! d a t a   | |   d a t a . l e n g t h   = = =   0 )   { 
+                         D O M . u p l o a d e d F i l e s L i s t . i n n e r H T M L   =   ' < d i v   c l a s s = \ t e x t - g r a y - 4 0 0  
+ i t a l i c  
+ t e x t - s m  
+ p y - 2 \ > "1D!H!5D%LA< / d i v > ' ; 
+                         r e t u r n ; 
+                 } 
+                 
+                 D O M . u p l o a d e d F i l e s L i s t . i n n e r H T M L   =   d a t a . m a p ( f i l e   = >   \ 
+                         < d i v   c l a s s = \ f l e x  
+ i t e m s - c e n t e r  
+ j u s t i f y - b e t w e e n  
+ p - 3  
+ b g - w h i t e  
+ b o r d e r  
+ r o u n d e d - l g  
+ s h a d o w - s m  
+ m b - 2 \ > 
+                                 < d i v   c l a s s = \ f l e x  
+ i t e m s - c e n t e r \ > 
+                                         < i   c l a s s = \ f a - s o l i d  
+ f a - f i l e - p d f  
+ t e x t - r e d - 5 0 0  
+ t e x t - l g  
+ m r - 3 \ > < / i > 
+                                         < d i v > 
+                                                 < p   c l a s s = \ f o n t - m e d i u m  
+ t e x t - n a v y  
+ t e x t - s m \ > \ < / p > 
+                                                 < p   c l a s s = \ t e x t - x s  
+ t e x t - g r a y - 4 0 0 \ > \ < / p > 
+                                         < / d i v > 
+                                 < / d i v > 
+                                 < a   h r e f = \ \ \   t a r g e t = \ _ b l a n k \   c l a s s = \ t e x t - b l u e - 5 0 0  
+ h o v e r : t e x t - b l u e - 7 0 0  
+ b g - b l u e - 5 0  
+ h o v e r : b g - b l u e - 1 0 0  
+ p x - 3  
+ p y - 1 . 5  
+ r o u n d e d - l g  
+ t r a n s i t i o n - c o l o r s  
+ t e x t - x s  
+ f o n t - m e d i u m \ > 
+                                         < i   c l a s s = \ f a - s o l i d  
+ f a - e y e  
+ m r - 1 \ > < / i >   9D%L
+                                 < / a > 
+                         < / d i v > 
+                 \ ) . j o i n ( ' ' ) ; 
+                 
+         }   c a t c h   ( e r r o r )   { 
+                 c o n s o l e . e r r o r ( ' F e t c h   f i l e s   e r r o r : ' ,   e r r o r ) ; 
+                 D O M . u p l o a d e d F i l e s L i s t . i n n e r H T M L   =   ' < d i v   c l a s s = \ t e x t - r e d - 5 0 0  
+ t e x t - s m \ > D!H*2!2#6I-!9%D%LDI< / d i v > ' ; 
+         } 
+ } 
+ 
+ a s y n c   f u n c t i o n   f e t c h P a t i e n t D o c u m e n t s ( c i t i z e n I d )   { 
+         i f   ( ! D O M . p a t i e n t D o c u m e n t s S e c t i o n   | |   ! D O M . p a t i e n t D o c u m e n t s C o n t a i n e r )   r e t u r n ; 
+         
+         / /   H i d e   i n i t i a l l y 
+         D O M . p a t i e n t D o c u m e n t s S e c t i o n . c l a s s L i s t . a d d ( ' h i d d e n ' ) ; 
+         D O M . p a t i e n t D o c u m e n t s C o n t a i n e r . i n n e r H T M L   =   ' < d i v   c l a s s = \ t e x t - s m  
+ t e x t - g r a y - 4 0 0  
+ i t a l i c  
+ c o l - s p a n - f u l l \ > < i   c l a s s = \ f a - s o l i d  
+ f a - s p i n n e r  
+ f a - s p i n  
+ m r - 2 \ > < / i >   3%1#'*-@-*2#. . . < / d i v > ' ; 
+         
+         i f   ( ! s u p a b a s e C l i e n t )   r e t u r n ; 
+         
+         t r y   { 
+                 c o n s t   {   d a t a ,   e r r o r   }   =   a w a i t   s u p a b a s e C l i e n t 
+                         . f r o m ( ' p a t i e n t _ f i l e s ' ) 
+                         . s e l e c t ( ' * ' ) 
+                         . e q ( ' c i t i z e n _ i d ' ,   c i t i z e n I d ) 
+                         . o r d e r ( ' c r e a t e d _ a t ' ,   {   a s c e n d i n g :   f a l s e   } ) ; 
+                         
+                 i f   ( e r r o r )   t h r o w   e r r o r ; 
+                 
+                 i f   ( d a t a   & &   d a t a . l e n g t h   >   0 )   { 
+                         D O M . p a t i e n t D o c u m e n t s S e c t i o n . c l a s s L i s t . r e m o v e ( ' h i d d e n ' ) ; 
+                         
+                         / /   M a p   i c o n s   b a s e d   o n   d o c u m e n t   t y p e 
+                         c o n s t   g e t I c o n   =   ( t y p e )   = >   { 
+                                 i f ( t y p e . i n c l u d e s ( ' X - r a y ' )   | |   t y p e . i n c l u d e s ( ' B o n e ' )   | |   t y p e . i n c l u d e s ( ' U l t r a s o u n d ' ) )   r e t u r n   ' f a - x - r a y   t e x t - i n d i g o - 5 0 0 ' ; 
+                                 i f ( t y p e . i n c l u d e s ( ' B o d y ' ) )   r e t u r n   ' f a - p e r s o n - w a l k i n g   t e x t - o r a n g e - 5 0 0 ' ; 
+                                 r e t u r n   ' f a - f l a s k   t e x t - b l u e - 5 0 0 ' ; 
+                         } ; 
+                         
+                         D O M . p a t i e n t D o c u m e n t s C o n t a i n e r . i n n e r H T M L   =   d a t a . m a p ( f i l e   = >   \ 
+                                 < a   h r e f = \ \ \   t a r g e t = \ _ b l a n k \   c l a s s = \ f l e x  
+ i t e m s - c e n t e r  
+ p - 4  
+ b g - g r a y - 5 0  
+ h o v e r : b g - b l u e - 5 0  
+ b o r d e r  
+ b o r d e r - g r a y - 2 0 0  
+ h o v e r : b o r d e r - b l u e - 2 0 0  
+ r o u n d e d - x l  
+ t r a n s i t i o n - a l l  
+ g r o u p  
+ s h a d o w - s m \ > 
+                                         < d i v   c l a s s = \ w - 1 0  
+ h - 1 0  
+ r o u n d e d - f u l l  
+ b g - w h i t e  
+ f l e x  
+ i t e m s - c e n t e r  
+ j u s t i f y - c e n t e r  
+ s h a d o w - s m  
+ s h r i n k - 0  
+ m r - 3  
+ g r o u p - h o v e r : s c a l e - 1 1 0  
+ t r a n s i t i o n - t r a n s f o r m \ > 
+                                                 < i   c l a s s = \ f a - s o l i d  
+ \  
+ t e x t - l g \ > < / i > 
+                                         < / d i v > 
+                                         < d i v   c l a s s = \ f l e x - 1  
+ o v e r f l o w - h i d d e n \ > 
+                                                 < h 4   c l a s s = \ f o n t - b o l d  
+ t e x t - g r a y - 8 0 0  
+ t e x t - s m  
+ t r u n c a t e  
+ g r o u p - h o v e r : t e x t - b l u e - 7 0 0  
+ t r a n s i t i o n - c o l o r s \ > \ < / h 4 > 
+                                                 < p   c l a s s = \ t e x t - x s  
+ t e x t - g r a y - 5 0 0  
+ m t - 0 . 5  
+ t r u n c a t e \ > \   -   A0@7H-9%< / p > 
+                                         < / d i v > 
+                                         < i   c l a s s = \ f a - s o l i d  
+ f a - d o w n l o a d  
+ t e x t - g r a y - 3 0 0  
+ g r o u p - h o v e r : t e x t - b l u e - 5 0 0  
+ m l - 2 \ > < / i > 
+                                 < / a > 
+                         \ ) . j o i n ( ' ' ) ; 
+                 } 
+                 
+         }   c a t c h   ( e r r o r )   { 
+                 c o n s o l e . e r r o r ( ' F e t c h   p a t i e n t   d o c u m e n t s   e r r o r : ' ,   e r r o r ) ; 
+         } 
+ } 
+  
+ 
