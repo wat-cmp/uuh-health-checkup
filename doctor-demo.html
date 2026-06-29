@@ -63,6 +63,60 @@
                 </div>
             </div>
 
+            <!-- Upload PDF Section (Mockup) -->
+            <div class="bg-white rounded-2xl p-5 border border-blue-100 shadow-sm relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                <h3 class="text-lg font-bold text-navy mb-4 flex items-center"><i class="fa-solid fa-cloud-arrow-up mr-2 text-blue-500"></i> อัปโหลดเอกสารผลตรวจ (PDF)</h3>
+                
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">เลือกประเภทเอกสาร</label>
+                            <select class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50">
+                                <option value="" disabled selected>-- กรุณาเลือก --</option>
+                                <optgroup label="แผนก X-ray/รังสีวิทยา">
+                                    <option value="Chest X-ray">Chest X-ray</option>
+                                    <option value="Ultrasound">Ultrasound</option>
+                                    <option value="Bone Density">Bone Density</option>
+                                </optgroup>
+                                <optgroup label="แผนกกายภาพบำบัด">
+                                    <option value="Body Composition">Body Composition</option>
+                                </optgroup>
+                                <optgroup label="แผนกห้องปฏิบัติการ (Lab)">
+                                    <option value="Lab พื้นฐาน">Lab พื้นฐาน</option>
+                                    <option value="CBC">CBC</option>
+                                    <option value="UA">UA</option>
+                                    <option value="Lab Chem">Lab Chem</option>
+                                    <option value="Lab Pap Smear">Lab Pap Smear</option>
+                                    <option value="Lab Thyroid">Lab Thyroid</option>
+                                    <option value="HPV DNA">HPV DNA</option>
+                                    <option value="Tumor Marker">Tumor Marker</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">เลือกไฟล์ PDF</label>
+                            <input type="file" accept="application/pdf" class="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-white file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        </div>
+                    </div>
+                    <div class="flex justify-end pt-2">
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg text-sm shadow-sm transition-colors flex items-center" onclick="alert('อัปโหลดไฟล์จำลองสำเร็จ')">
+                            <i class="fa-solid fa-upload mr-2"></i> อัปโหลดไฟล์
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-2 border-b pb-1">ไฟล์ที่แนบไว้แล้ว:</h4>
+                    <div class="space-y-2 text-sm text-gray-600">
+                        <div class="flex items-center justify-between bg-slate-50 p-2 rounded border border-slate-100">
+                            <div><i class="fa-solid fa-file-pdf text-red-500 mr-2"></i>Chest X-ray.pdf</div>
+                            <button class="text-blue-500 hover:text-blue-700 text-xs"><i class="fa-solid fa-eye"></i> ดูไฟล์</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Notice -->
             <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg shadow-sm">
                 <div class="flex">
@@ -107,7 +161,7 @@
                     <textarea id="doctor-opinion" class="w-full flex-grow min-h-[150px] border border-gray-300 rounded-xl p-4 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none" placeholder="พิมพ์ความเห็นแพทย์ หรือกดปุ่มให้ AI ร่างข้อความให้..."></textarea>
                     
                     <div class="mt-4 flex justify-end">
-                        <button class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors shadow-sm" onclick="alert('บันทึกข้อมูลเรียบร้อยแล้ว (ระบบจำลอง)')">
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors shadow-sm" onclick="saveDemoData()">
                             <i class="fa-solid fa-floppy-disk mr-2"></i> บันทึกผลทั้งหมด
                         </button>
                     </div>
@@ -158,11 +212,11 @@
             'Chest_X_Ray': 'ปกติ',
             'EKG': 'ปกติ',
             'Ultrasound': 'Fatty liver mild degree',
-            'ตรวจมะเร็งปากมดลูก': '-',
-            'HPV DNA Test': '-',
-            'Bone Density': '-',
-            'Body Composition Analyzer': '-',
-            'Low Dose CT scan': '-',
+            'ตรวจมะเร็งปากมดลูก': 'ไม่ได้ตรวจ',
+            'HPV DNA Test': 'ไม่ได้ตรวจ',
+            'Bone Density': 'ไม่ได้ตรวจ',
+            'Body Composition Analyzer': 'ไม่ได้ตรวจ',
+            'Low Dose CT scan': 'ไม่ได้ตรวจ',
             '2Q': 'ปกติ'
         };
 
@@ -206,16 +260,16 @@
                 { key: 'Free T4', label: 'ฮอร์โมนไทรอยด์ (Free T4)', valueKey: 'Free_T4', normal: '0.82 - 1.77 ng/dL' },
                 { key: 'TSH', label: 'ฮอร์โมนไทรอยด์ (TSH)', valueKey: 'TSH', normal: '0.4 - 4.0 mIU/L' },
                 { key: 'HbsAg', label: 'เชื้อไวรัสตับอักเสบ บี (HbsAg)', valueKey: 'HbsAg', normal: 'Negative' },
-                { key: 'HbsAb', label: 'ภูมิคุ้มกันไวรัสตับอักเสบ บี (HbsAb)', valueKey: 'HbsAb', normal: 'Negative' },
+                { key: 'HbsAb', label: 'ภูมิคุ้มกันไวรัสตับอักเสบ บี (HbsAb)', valueKey: 'HbsAb', normal: 'Positive' },
                 { key: 'Anti-HCV', label: 'ภูมิคุ้มกันไวรัสตับอักเสบ ซี (Anti-HCV)', valueKey: 'Anti_HCV', normal: 'Negative' },
                 { key: 'Blood group', label: 'หมู่เลือด (Blood group)', valueKey: 'Blood group', normal: null }
             ]},
             { id: 'ua', title: '8. ผลการตรวจปัสสาวะ', icon: 'fa-vial', fields: [
-                { key: 'UA', label: 'ปัสสาวะ (UA)', valueKey: 'UA', normal: '0 - 5' }
+                { key: 'UA', label: 'ปัสสาวะ (UA)', valueKey: 'UA' }
             ]},
             { id: 'stool', title: '9. ผลการตรวจอุจจาระ', icon: 'fa-poop', fields: [
                 { key: 'Stool Exam', label: 'อุจจาระ (Stool Exam)', valueKey: 'Stool_Exam' },
-                { key: 'Stool occult blood', label: 'เลือดแฝงในอุจจาระ', valueKey: 'เลือดแฝงในอุจจาระ' }
+                { key: 'Stool occult blood', label: 'เลือดแฝงในอุจจาระ', valueKey: 'เลือดแฝงในอุจจาระ', normal: 'Negative' }
             ]},
             { id: 'special_exams', title: '10. การตรวจพิเศษ (X-Ray, อัลตราซาวด์, ฯลฯ)', icon: 'fa-x-ray', fields: [
                 { key: 'Physical examination', label: 'ซักประวัติ ตรวจร่างกาย', valueKey: 'Physical_exam' },
@@ -243,16 +297,81 @@
             icon.classList.toggle('open');
         }
 
+        function isAbnormalValue(fieldKey, val, normalStr) {
+            if (typeof val === 'string') val = val.trim();
+            if (!val || val === '-' || val === 'ไม่ได้ตรวจ' || val === 'ปกติ') return false;
+            
+            if (fieldKey === 'Follow_up') return false;
+            if (fieldKey === 'Ultrasound' && val !== 'ปกติ') return true;
+            if (fieldKey === 'EKG' && val !== 'ปกติ') return true;
+            if (fieldKey === 'Chest_X_Ray' && val !== 'ปกติ') return true;
+            
+            if (normalStr) {
+                if (normalStr.toLowerCase() === 'negative' || normalStr.toLowerCase() === 'positive') {
+                    return val.toLowerCase() !== normalStr.toLowerCase();
+                }
+
+                let numVal = parseFloat(val);
+                if (!isNaN(numVal)) {
+                    if (normalStr.includes('-')) {
+                        let parts = normalStr.split('-');
+                        let min = parseFloat(parts[0]);
+                        let max = parseFloat(parts[1]);
+                        if (!isNaN(min) && !isNaN(max)) {
+                            return numVal < min || numVal > max;
+                        }
+                    } else if (normalStr.includes('<')) {
+                        let match = normalStr.match(/\d+(\.\d+)?/);
+                        if (match) {
+                            return numVal >= parseFloat(match[0]);
+                        }
+                    } else if (normalStr.includes('>')) {
+                        let match = normalStr.match(/\d+(\.\d+)?/);
+                        if (match) {
+                            return numVal <= parseFloat(match[0]);
+                        }
+                    }
+                } else {
+                    if (val.toLowerCase() !== normalStr.toLowerCase()) return true;
+                }
+            } else {
+                // For text fields without normalStr, if it's not 'ปกติ' (handled above), it's abnormal EXCEPT for specific fields
+                const alwaysNormalFields = ['Blood group', 'ความดัน', 'ชีพจร']; 
+                if (alwaysNormalFields.includes(fieldKey)) {
+                    return false;
+                }
+                return true;
+            }
+            return false;
+        }
+
+        function handleInputChange(fieldKey, normalStr) {
+            const input = document.getElementById('input-' + fieldKey);
+            const badgeContainer = document.getElementById('badge-' + fieldKey);
+            if (!input || !badgeContainer) return;
+            
+            const val = input.value;
+            const isAbn = isAbnormalValue(fieldKey, val, normalStr);
+            
+            if (isAbn) {
+                input.className = "border border-red-300 bg-red-50 text-red-700 rounded-md px-3 py-1.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none w-40 sm:w-48 mr-3";
+                badgeContainer.innerHTML = `<span class="bg-red-50 text-red-600 border border-red-200 text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-medium shadow-sm"><i class="fa-solid fa-circle-xmark mr-1"></i>ผิดปกติ/ต้องระวัง</span>`;
+            } else {
+                input.className = "border border-gray-300 bg-white rounded-md px-3 py-1.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none w-40 sm:w-48 mr-3";
+                badgeContainer.innerHTML = `<span class="bg-green-50 text-green-600 border border-green-200 text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-medium shadow-sm"><i class="fa-solid fa-circle-check mr-1"></i>อยู่ในเกณฑ์ปกติ</span>`;
+            }
+        }
+
         function renderDashboard() {
             const container = document.getElementById('results-container');
             
             GROUPS.forEach(group => {
                 const fieldsHTML = group.fields.map(field => {
                     const val = dummyData[field.valueKey] || '';
-                    // check if abnormal (fake logic for prototype)
-                    let isAbnormal = (field.valueKey === 'Alk_Phosphatase' && val > 129) || (field.valueKey === 'Ultrasound' && val.includes('Fatty liver'));
+                    // check if abnormal using the new generic function
+                    let isAbnormal = isAbnormalValue(field.valueKey, val, field.normal);
                     
-                    const normalHtml = field.normal ? `<div class="text-[10px] sm:text-xs text-gray-400 mt-1"><i class="fa-solid fa-info-circle mr-1"></i>ค่าปกติ: ${field.normal}</div>` : '';
+                    const normalHtml = (field.normal && field.normal.toLowerCase() !== 'negative' && field.normal.toLowerCase() !== 'positive') ? `<div class="text-[10px] sm:text-xs text-gray-400 mt-1"><i class="fa-solid fa-info-circle mr-1"></i>ค่าปกติ: ${field.normal}</div>` : '';
                     
                     const statusBadge = isAbnormal 
                         ? `<span class="bg-red-50 text-red-600 border border-red-200 text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-medium shadow-sm"><i class="fa-solid fa-circle-xmark mr-1"></i>ผิดปกติ/ต้องระวัง</span>`
@@ -266,8 +385,8 @@
                             </div>
                             <div class="flex items-center justify-between sm:justify-end w-full sm:w-1/2">
                                 <!-- Editable Input instead of static text -->
-                                <input type="text" class="border ${isAbnormal ? 'border-red-300 bg-red-50 text-red-700' : 'border-gray-300 bg-white'} rounded-md px-3 py-1.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none w-40 sm:w-48 mr-3" value="${val}" placeholder="กรอกผลลัพธ์">
-                                <div class="w-24 sm:w-32 text-right flex-shrink-0">
+                                <input type="text" id="input-${field.valueKey}" oninput="handleInputChange('${field.valueKey}', '${field.normal || ''}')" class="border ${isAbnormal ? 'border-red-300 bg-red-50 text-red-700' : 'border-gray-300 bg-white'} rounded-md px-3 py-1.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none w-40 sm:w-48 mr-3" value="${val}" placeholder="กรอกผลลัพธ์">
+                                <div id="badge-${field.valueKey}" class="w-24 sm:w-32 text-right flex-shrink-0">
                                     ${statusBadge}
                                 </div>
                             </div>
@@ -301,21 +420,41 @@
             const btn = document.getElementById('btn-ai');
             const textarea = document.getElementById('doctor-opinion');
             
+            // Gather all abnormal findings dynamically
+            let abnormalFindings = [];
+            GROUPS.forEach(group => {
+                group.fields.forEach(field => {
+                    const input = document.getElementById('input-' + field.valueKey);
+                    if (input) {
+                        const val = input.value;
+                        if (isAbnormalValue(field.valueKey, val, field.normal)) {
+                            abnormalFindings.push(`- ${field.label} ผิดปกติ (${val})`);
+                        }
+                    }
+                });
+            });
+
+            const fuInput = document.getElementById('input-Follow_up');
+            const fuVal = fuInput && fuInput.value.trim() !== '' && fuInput.value !== '-' ? fuInput.value : '3-6 เดือน';
+            
             const originalHTML = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> AI กำลังวิเคราะห์ผลแล็บ...';
             btn.disabled = true;
             btn.classList.replace('bg-purple-600', 'bg-purple-400');
             
             setTimeout(() => {
-                const aiResponse = `พบความผิดปกติที่ต้องเฝ้าระวัง ดังนี้:
-1. ค่าเอนไซม์ตับ (Alk. Phosphatase) สูงกว่าปกติเล็กน้อย (140 U/L)
-2. ผลอัลตราซาวด์ช่องท้องพบภาวะไขมันพอกตับระยะเริ่มต้น (Fatty liver mild degree)
+                let aiResponse = "";
+                if (abnormalFindings.length > 0) {
+                    aiResponse += "พบความผิดปกติที่ต้องเฝ้าระวัง ดังนี้:\n" + abnormalFindings.join('\n') + "\n\n";
+                } else {
+                    aiResponse += "ผลการตรวจสุขภาพส่วนใหญ่อยู่ในเกณฑ์ปกติ\n\n";
+                }
 
-คำแนะนำเพิ่มเติม: 
+                aiResponse += `คำแนะนำเพิ่มเติม: 
 - แนะนำให้ออกกำลังกายสม่ำเสมอ ลดน้ำหนัก
 - ลดการรับประทานอาหารที่มีไขมันสูง ของทอด แป้งและน้ำตาล
 - งดเครื่องดื่มแอลกอฮอล์ 
-- ควรมาพบแพทย์เพื่อเจาะเลือดตรวจการทำงานของตับซ้ำในอีก 3-6 เดือน`;
+- ควรมาพบแพทย์เพื่อเจาะเลือดตรวจซ้ำในอีก ${fuVal}`;
                 
                 textarea.value = '';
                 let i = 0;
@@ -344,7 +483,25 @@
             }, 1500);
         }
 
-        // Initialize
+        function saveDemoData() {
+            const savedData = {};
+            GROUPS.forEach(group => {
+                group.fields.forEach(field => {
+                    const input = document.getElementById('input-' + field.valueKey);
+                    if (input) {
+                        savedData[field.valueKey] = input.value;
+                    }
+                });
+            });
+            const doctorOpinion = document.getElementById('doctor-opinion').value;
+            
+            localStorage.setItem('demo_patient_data', JSON.stringify(savedData));
+            localStorage.setItem('demo_doctor_opinion', doctorOpinion);
+            
+            alert('บันทึกข้อมูลเรียบร้อยแล้ว (ระบบจำลอง)\n\nข้อมูลถูกซิงค์ไปให้หน้า Patient Demo แล้วครับ\nลองเปิดหน้า Patient Demo ดูความเปลี่ยนแปลงได้เลยครับ');
+        }
+
+        // Initialize Dashboard
         renderDashboard();
     </script>
 </body>
