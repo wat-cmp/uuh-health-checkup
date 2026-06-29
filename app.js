@@ -20,7 +20,7 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQKH6BmbFctC-wC
 const STAFF_KEY = 'YWRtaW4xMjM0'; // encoded admin1234
 
 // Supabase Configuration
-const SUPABASE_URL = 'https://pirjgwpxkvziakoswqeg.supabase.co';
+const SUPABASE_URL = 'https://pirjgwxpkvziakoswqeg.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpcmpnd3hwa3Z6aWFrb3N3cWVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NTY2MDAsImV4cCI6MjA5ODAzMjYwMH0.M_RZXbX3aOG1LoWzV3s-JYfoDS2amWF6YelJV_cTpvQ';
 let supabaseClient = null;
 if (typeof supabase !== 'undefined') {
