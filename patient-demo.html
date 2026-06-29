@@ -74,8 +74,11 @@
         <div id="patient-dashboard" class="w-full min-h-full slide-in pb-10 hidden p-4 md:p-6 lg:p-8">
             <div class="max-w-4xl mx-auto space-y-6">
                 
-                <div class="flex justify-end mb-4">
-                    <button onclick="logout()" class="text-red-500 hover:text-red-700 font-medium bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg transition-colors border border-red-100 shadow-sm flex items-center">
+                <div class="flex justify-between items-center mb-4 print:hidden">
+                    <button onclick="window.print()" class="text-gray-600 hover:text-blue-600 font-medium bg-white hover:bg-blue-50 px-4 py-2 rounded-lg transition-colors border border-gray-200 shadow-sm flex items-center text-sm">
+                        <i class="fa-solid fa-print mr-2"></i> พิมพ์ผลการตรวจ
+                    </button>
+                    <button onclick="logout()" class="text-red-500 hover:text-red-700 font-medium bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg transition-colors border border-red-100 shadow-sm flex items-center text-sm">
                         <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> ออกจากระบบ
                     </button>
                 </div>
@@ -108,7 +111,7 @@
                         </span>
                     </div>
                     
-                    <div class="bg-slate-50 p-4 rounded-xl border border-gray-100 whitespace-pre-line text-gray-700 leading-relaxed font-medium">พบความผิดปกติที่ต้องเฝ้าระวัง ดังนี้:
+                    <div id="patient-ai-opinion" class="bg-slate-50 p-4 rounded-xl border border-gray-100 whitespace-pre-line text-gray-700 leading-relaxed font-medium">พบความผิดปกติที่ต้องเฝ้าระวัง ดังนี้:
 1. ค่าเอนไซม์ตับ (Alk. Phosphatase) สูงกว่าปกติเล็กน้อย (140 U/L)
 2. ผลอัลตราซาวด์ช่องท้องพบภาวะไขมันพอกตับระยะเริ่มต้น (Fatty liver mild degree)
 
@@ -117,6 +120,71 @@
 - ลดการรับประทานอาหารที่มีไขมันสูง ของทอด แป้งและน้ำตาล
 - งดเครื่องดื่มแอลกอฮอล์ 
 - ควรมาพบแพทย์เพื่อเจาะเลือดตรวจการทำงานของตับซ้ำในอีก 3-6 เดือน</div>
+                </div>
+
+                <!-- Uploaded Files Section -->
+                <div class="glass-card rounded-2xl shadow-md p-6 bg-white relative overflow-hidden slide-in" style="animation-delay: 0.2s;">
+                    <div class="flex items-center mb-4 border-b pb-4 border-gray-100">
+                        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 mr-4">
+                            <i class="fa-solid fa-download"></i>
+                        </div>
+                        <h3 class="text-lg md:text-xl font-bold text-navy">ไฟล์เอกสารผลตรวจ (ดาวน์โหลด)</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- File 1 -->
+                        <div class="bg-slate-50 border border-gray-200 rounded-xl p-4 flex justify-between items-center hover:bg-slate-100 transition-colors">
+                            <div class="flex items-center text-gray-700">
+                                <i class="fa-solid fa-file-pdf text-red-500 mr-3 text-2xl"></i>
+                                <div>
+                                    <span class="font-bold text-sm block text-navy">Chest X-Ray.pdf</span>
+                                    <span class="text-xs text-gray-500">เอกซเรย์ปอด</span>
+                                </div>
+                            </div>
+                            <button onclick="alert('ดาวน์โหลดไฟล์ Chest X-Ray.pdf สำเร็จ (ระบบจำลอง)')" class="text-blue-600 hover:text-white hover:bg-blue-600 bg-white border border-blue-200 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors shadow-sm flex items-center">
+                                <i class="fa-solid fa-download mr-1"></i> ดาวน์โหลด
+                            </button>
+                        </div>
+                        <!-- File 2 -->
+                        <div class="bg-slate-50 border border-gray-200 rounded-xl p-4 flex justify-between items-center hover:bg-slate-100 transition-colors">
+                            <div class="flex items-center text-gray-700">
+                                <i class="fa-solid fa-file-pdf text-red-500 mr-3 text-2xl"></i>
+                                <div>
+                                    <span class="font-bold text-sm block text-navy">ผลเลือด_CBC.pdf</span>
+                                    <span class="text-xs text-gray-500">ความสมบูรณ์ของเลือด</span>
+                                </div>
+                            </div>
+                            <button onclick="alert('ดาวน์โหลดไฟล์ ผลเลือด_CBC.pdf สำเร็จ (ระบบจำลอง)')" class="text-blue-600 hover:text-white hover:bg-blue-600 bg-white border border-blue-200 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors shadow-sm flex items-center">
+                                <i class="fa-solid fa-download mr-1"></i> ดาวน์โหลด
+                            </button>
+                        </div>
+                        <!-- File 3 -->
+                        <div class="bg-slate-50 border border-gray-200 rounded-xl p-4 flex justify-between items-center hover:bg-slate-100 transition-colors">
+                            <div class="flex items-center text-gray-700">
+                                <i class="fa-solid fa-file-pdf text-red-500 mr-3 text-2xl"></i>
+                                <div>
+                                    <span class="font-bold text-sm block text-navy">ผลเลือด_Chemistry.pdf</span>
+                                    <span class="text-xs text-gray-500">ค่าตับ ไต น้ำตาล ไขมัน</span>
+                                </div>
+                            </div>
+                            <button onclick="alert('ดาวน์โหลดไฟล์ ผลเลือด_Chemistry.pdf สำเร็จ (ระบบจำลอง)')" class="text-blue-600 hover:text-white hover:bg-blue-600 bg-white border border-blue-200 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors shadow-sm flex items-center">
+                                <i class="fa-solid fa-download mr-1"></i> ดาวน์โหลด
+                            </button>
+                        </div>
+                        <!-- File 4 -->
+                        <div class="bg-slate-50 border border-gray-200 rounded-xl p-4 flex justify-between items-center hover:bg-slate-100 transition-colors">
+                            <div class="flex items-center text-gray-700">
+                                <i class="fa-solid fa-file-pdf text-red-500 mr-3 text-2xl"></i>
+                                <div>
+                                    <span class="font-bold text-sm block text-navy">ผลเลือด_Thyroid.pdf</span>
+                                    <span class="text-xs text-gray-500">การทำงานของไทรอยด์</span>
+                                </div>
+                            </div>
+                            <button onclick="alert('ดาวน์โหลดไฟล์ ผลเลือด_Thyroid.pdf สำเร็จ (ระบบจำลอง)')" class="text-blue-600 hover:text-white hover:bg-blue-600 bg-white border border-blue-200 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors shadow-sm flex items-center">
+                                <i class="fa-solid fa-download mr-1"></i> ดาวน์โหลด
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="flex items-center justify-between mt-8 mb-4 border-b pb-2 border-gray-300">
@@ -173,11 +241,11 @@
             'Chest_X_Ray': 'ปกติ',
             'EKG': 'ปกติ',
             'Ultrasound': 'Fatty liver mild degree',
-            'ตรวจมะเร็งปากมดลูก': '-',
-            'HPV DNA Test': '-',
-            'Bone Density': '-',
-            'Body Composition Analyzer': '-',
-            'Low Dose CT scan': '-',
+            'ตรวจมะเร็งปากมดลูก': 'ไม่ได้ตรวจ',
+            'HPV DNA Test': 'ไม่ได้ตรวจ',
+            'Bone Density': 'ไม่ได้ตรวจ',
+            'Body Composition Analyzer': 'ไม่ได้ตรวจ',
+            'Low Dose CT scan': 'ไม่ได้ตรวจ',
             '2Q': 'ปกติ'
         };
 
@@ -221,16 +289,16 @@
                 { key: 'Free T4', label: 'ฮอร์โมนไทรอยด์ (Free T4)', valueKey: 'Free_T4', normal: '0.82 - 1.77 ng/dL' },
                 { key: 'TSH', label: 'ฮอร์โมนไทรอยด์ (TSH)', valueKey: 'TSH', normal: '0.4 - 4.0 mIU/L' },
                 { key: 'HbsAg', label: 'เชื้อไวรัสตับอักเสบ บี (HbsAg)', valueKey: 'HbsAg', normal: 'Negative' },
-                { key: 'HbsAb', label: 'ภูมิคุ้มกันไวรัสตับอักเสบ บี (HbsAb)', valueKey: 'HbsAb', normal: 'Negative' },
+                { key: 'HbsAb', label: 'ภูมิคุ้มกันไวรัสตับอักเสบ บี (HbsAb)', valueKey: 'HbsAb', normal: 'Positive' },
                 { key: 'Anti-HCV', label: 'ภูมิคุ้มกันไวรัสตับอักเสบ ซี (Anti-HCV)', valueKey: 'Anti_HCV', normal: 'Negative' },
                 { key: 'Blood group', label: 'หมู่เลือด (Blood group)', valueKey: 'Blood group', normal: null }
             ]},
             { id: 'ua', title: '8. ผลการตรวจปัสสาวะ', icon: 'fa-vial', fields: [
-                { key: 'UA', label: 'ปัสสาวะ (UA)', valueKey: 'UA', normal: '0 - 5' }
+                { key: 'UA', label: 'ปัสสาวะ (UA)', valueKey: 'UA' }
             ]},
             { id: 'stool', title: '9. ผลการตรวจอุจจาระ', icon: 'fa-poop', fields: [
                 { key: 'Stool Exam', label: 'อุจจาระ (Stool Exam)', valueKey: 'Stool_Exam' },
-                { key: 'Stool occult blood', label: 'เลือดแฝงในอุจจาระ', valueKey: 'เลือดแฝงในอุจจาระ' }
+                { key: 'Stool occult blood', label: 'เลือดแฝงในอุจจาระ', valueKey: 'เลือดแฝงในอุจจาระ', normal: 'Negative' }
             ]},
             { id: 'special_exams', title: '10. การตรวจพิเศษ (X-Ray, อัลตราซาวด์, ฯลฯ)', icon: 'fa-x-ray', fields: [
                 { key: 'Physical examination', label: 'ซักประวัติ ตรวจร่างกาย', valueKey: 'Physical_exam' },
@@ -266,16 +334,84 @@
             icon.classList.toggle('open');
         }
 
+        function isAbnormalValue(fieldKey, val, normalStr) {
+            if (typeof val === 'string') val = val.trim();
+            if (!val || val === '-' || val === 'ไม่ได้ตรวจ' || val === 'ปกติ') return false;
+            
+            if (fieldKey === 'Follow_up') return false;
+            if (fieldKey === 'Ultrasound' && val !== 'ปกติ') return true;
+            if (fieldKey === 'EKG' && val !== 'ปกติ') return true;
+            if (fieldKey === 'Chest_X_Ray' && val !== 'ปกติ') return true;
+            
+            if (normalStr) {
+                if (normalStr.toLowerCase() === 'negative' || normalStr.toLowerCase() === 'positive') {
+                    return val.toLowerCase() !== normalStr.toLowerCase();
+                }
+
+                let numVal = parseFloat(val);
+                if (!isNaN(numVal)) {
+                    if (normalStr.includes('-')) {
+                        let parts = normalStr.split('-');
+                        let min = parseFloat(parts[0]);
+                        let max = parseFloat(parts[1]);
+                        if (!isNaN(min) && !isNaN(max)) {
+                            return numVal < min || numVal > max;
+                        }
+                    } else if (normalStr.includes('<')) {
+                        let match = normalStr.match(/\d+(\.\d+)?/);
+                        if (match) {
+                            return numVal >= parseFloat(match[0]);
+                        }
+                    } else if (normalStr.includes('>')) {
+                        let match = normalStr.match(/\d+(\.\d+)?/);
+                        if (match) {
+                            return numVal <= parseFloat(match[0]);
+                        }
+                    }
+                } else {
+                    if (val.toLowerCase() !== normalStr.toLowerCase()) return true;
+                }
+            } else {
+                const alwaysNormalFields = ['Blood group', 'ความดัน', 'ชีพจร']; 
+                if (alwaysNormalFields.includes(fieldKey)) {
+                    return false;
+                }
+                return true;
+            }
+            return false;
+        }
+
         function renderDashboard() {
+            // Check for saved demo data
+            const savedPatientData = localStorage.getItem('demo_patient_data');
+            if (savedPatientData) {
+                try {
+                    const parsedData = JSON.parse(savedPatientData);
+                    Object.assign(dummyData, parsedData);
+                } catch (e) {}
+            }
+            
+            const savedDoctorOpinion = localStorage.getItem('demo_doctor_opinion');
+            if (savedDoctorOpinion !== null) {
+                const opinionDiv = document.getElementById('patient-ai-opinion');
+                if (opinionDiv) {
+                    if (savedDoctorOpinion.trim() === '') {
+                        opinionDiv.innerHTML = '<span class="text-gray-400 italic">แพทย์ยังไม่ได้บันทึกความเห็น</span>';
+                    } else {
+                        opinionDiv.textContent = savedDoctorOpinion;
+                    }
+                }
+            }
+
             const container = document.getElementById('results-container');
             container.innerHTML = '';
             
             GROUPS.forEach((group, index) => {
                 const fieldsHTML = group.fields.map(field => {
                     const val = dummyData[field.valueKey] || '-';
-                    let isAbnormal = (field.valueKey === 'Alk_Phosphatase' && val > 129) || (field.valueKey === 'Ultrasound' && val.includes('Fatty liver'));
+                    let isAbnormal = isAbnormalValue(field.valueKey, val, field.normal);
                     
-                    const normalHtml = field.normal ? `<div class="text-[10px] sm:text-xs text-gray-400 mt-1"><i class="fa-solid fa-info-circle mr-1"></i>ค่าปกติ: ${field.normal}</div>` : '';
+                    const normalHtml = (field.normal && field.normal.toLowerCase() !== 'negative' && field.normal.toLowerCase() !== 'positive') ? `<div class="text-[10px] sm:text-xs text-gray-400 mt-1"><i class="fa-solid fa-info-circle mr-1"></i>ค่าปกติ: ${field.normal}</div>` : '';
                     
                     const statusBadge = isAbnormal 
                         ? `<span class="bg-red-50 text-red-600 border border-red-200 text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-medium shadow-sm"><i class="fa-solid fa-circle-xmark mr-1"></i>ผิดปกติ</span>`
