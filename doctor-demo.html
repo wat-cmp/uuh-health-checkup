@@ -4,14 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบข้อมูลการตรวจสุขภาพ (Prototype) - แพทย์และ AI</title>
-    
-    <!-- Fonts: Noto Sans Thai -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script>
@@ -27,11 +21,14 @@
     <style>
         body { background-color: #f8fafc; }
         .glass-card { background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.4s ease; }
+        .accordion-content.open { max-height: 2000px; padding-bottom: 1rem; }
+        .accordion-icon { transition: transform 0.3s ease; }
+        .accordion-icon.open { transform: rotate(180deg); }
     </style>
 </head>
 <body class="text-gray-800 antialiased h-screen flex flex-col">
 
-    <!-- Navbar -->
     <nav class="bg-navy text-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
@@ -46,9 +43,7 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
     <main class="flex-grow overflow-y-auto relative z-10 p-4 md:p-6 lg:p-8">
-        
         <div class="max-w-5xl mx-auto space-y-6">
             
             <!-- Patient Header -->
@@ -61,100 +56,61 @@
                         <h2 class="text-2xl font-bold mb-1">นาย สมมติ ทดสอบระบบ</h2>
                         <div class="flex flex-wrap gap-4 text-sm text-blue-100">
                             <span><i class="fa-solid fa-id-card mr-1"></i> 1-2345-67890-12-3</span>
-                            <span><i class="fa-solid fa-cake-candles mr-1"></i> อายุ 45 ปี</span>
+                            <span><i class="fa-solid fa-cake-candles mr-1"></i> อายุ 54 ปี</span>
                             <span><i class="fa-solid fa-venus-mars mr-1"></i> เพศ ชาย</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Left Side: Lab Results Input -->
-                <div class="glass-card rounded-2xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="text-lg font-bold text-navy mb-4 border-b pb-2">
-                        <i class="fa-solid fa-vial text-blue-500 mr-2"></i> กรอกผลการตรวจแล็บ
-                    </h3>
-                    
-                    <div class="space-y-4">
-                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                            <h4 class="font-semibold text-gray-700 mb-3"><i class="fa-solid fa-heart-pulse mr-2 text-red-400"></i>สัญญาณชีพและข้อมูลพื้นฐาน</h4>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs text-gray-500 mb-1">น้ำหนัก (kg)</label>
-                                    <input type="number" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" value="75">
-                                </div>
-                                <div>
-                                    <label class="block text-xs text-gray-500 mb-1">ส่วนสูง (cm)</label>
-                                    <input type="number" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" value="170">
-                                </div>
-                                <div>
-                                    <label class="block text-xs text-gray-500 mb-1">ความดันโลหิต (mmHg)</label>
-                                    <input type="text" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" value="145/90">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                            <h4 class="font-semibold text-gray-700 mb-3"><i class="fa-solid fa-droplet mr-2 text-red-500"></i>ผลตรวจเลือด (Blood Test)</h4>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs text-gray-500 mb-1">FBS (น้ำตาลในเลือด)</label>
-                                    <input type="number" id="lab-fbs" class="w-full border border-red-300 bg-red-50 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none text-red-600 font-medium" value="126">
-                                    <p class="text-[10px] text-red-500 mt-1">สูงกว่าปกติ (>99)</p>
-                                </div>
-                                <div>
-                                    <label class="block text-xs text-gray-500 mb-1">Cholesterol</label>
-                                    <input type="number" id="lab-chol" class="w-full border border-red-300 bg-red-50 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none text-red-600 font-medium" value="240">
-                                    <p class="text-[10px] text-red-500 mt-1">สูงกว่าปกติ (>200)</p>
-                                </div>
-                                <div>
-                                    <label class="block text-xs text-gray-500 mb-1">Triglycerides</label>
-                                    <input type="number" id="lab-tg" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" value="140">
-                                </div>
-                                <div>
-                                    <label class="block text-xs text-gray-500 mb-1">AST/SGOT</label>
-                                    <input type="number" id="lab-ast" class="w-full border border-red-300 bg-red-50 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none text-red-600 font-medium" value="45">
-                                    <p class="text-[10px] text-red-500 mt-1">สูงกว่าปกติ (>40)</p>
-                                </div>
-                            </div>
-                        </div>
+            <!-- Notice -->
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg shadow-sm">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fa-solid fa-info-circle text-blue-500"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-blue-700">
+                            <strong>คำแนะนำ:</strong> ในหน้าจอนี้ แพทย์/เจ้าหน้าที่สามารถพิมพ์แก้ไขค่าผลตรวจในช่องต่างๆ ได้โดยตรง และสามารถเลื่อนลงไปด้านล่างสุดเพื่อใช้ AI ช่วยสรุปความเห็นแพทย์ได้
+                        </p>
                     </div>
                 </div>
+            </div>
 
-                <!-- Right Side: AI Assistant & Doctor Opinion -->
-                <div class="flex flex-col gap-6">
+            <!-- Accordions Container -->
+            <div id="results-container" class="space-y-4">
+                <!-- JavaScript will inject accordions here -->
+            </div>
+
+            <!-- AI & Doctor Opinion Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+                <div class="glass-card rounded-2xl shadow-sm border border-purple-200 p-6 bg-gradient-to-b from-purple-50 to-white relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 text-purple-600">
+                        <i class="fa-solid fa-microchip text-6xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-purple-900 mb-2 relative z-10">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-2 text-purple-600"></i> ผู้ช่วยแพทย์ (Gemini AI)
+                    </h3>
+                    <p class="text-sm text-gray-600 mb-4 relative z-10">คลิกปุ่มด้านล่างเพื่อให้ AI วิเคราะห์ผลแล็บทั้งหมดด้านบนและร่างผลสรุปเบื้องต้นโดยอัตโนมัติ</p>
                     
-                    <!-- AI Assistant Card -->
-                    <div class="glass-card rounded-2xl shadow-sm border border-purple-200 p-6 bg-gradient-to-b from-purple-50 to-white relative overflow-hidden">
-                        <div class="absolute top-0 right-0 p-4 opacity-10 text-purple-600">
-                            <i class="fa-solid fa-microchip text-6xl"></i>
-                        </div>
-                        <h3 class="text-lg font-bold text-purple-900 mb-2 relative z-10">
-                            <i class="fa-solid fa-wand-magic-sparkles mr-2 text-purple-600"></i> ผู้ช่วยแพทย์ (Gemini AI)
-                        </h3>
-                        <p class="text-sm text-gray-600 mb-4 relative z-10">คลิกปุ่มด้านล่างเพื่อให้ AI วิเคราะห์ผลแล็บและร่างผลสรุปเบื้องต้นโดยอัตโนมัติ</p>
-                        
-                        <button id="btn-ai" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 rounded-xl transition-all shadow-md flex items-center justify-center relative z-10" onclick="simulateAI()">
-                            <i class="fa-solid fa-robot mr-2"></i> ให้ AI ร่างความเห็นแพทย์
+                    <button id="btn-ai" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 rounded-xl transition-all shadow-md flex items-center justify-center relative z-10" onclick="simulateAI()">
+                        <i class="fa-solid fa-robot mr-2"></i> ให้ AI ร่างความเห็นแพทย์
+                    </button>
+                </div>
+
+                <div class="glass-card rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col">
+                    <h3 class="text-lg font-bold text-navy mb-4 border-b pb-2 flex justify-between items-center">
+                        <span><i class="fa-solid fa-stethoscope text-blue-500 mr-2"></i> ความเห็นแพทย์ผู้ตรวจ</span>
+                        <span class="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded">ส่วนที่จะแสดงให้คนไข้เห็น</span>
+                    </h3>
+                    
+                    <textarea id="doctor-opinion" class="w-full flex-grow min-h-[150px] border border-gray-300 rounded-xl p-4 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none" placeholder="พิมพ์ความเห็นแพทย์ หรือกดปุ่มให้ AI ร่างข้อความให้..."></textarea>
+                    
+                    <div class="mt-4 flex justify-end">
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors shadow-sm" onclick="alert('บันทึกข้อมูลเรียบร้อยแล้ว (ระบบจำลอง)')">
+                            <i class="fa-solid fa-floppy-disk mr-2"></i> บันทึกผลทั้งหมด
                         </button>
                     </div>
-
-                    <!-- Final Doctor Opinion Input -->
-                    <div class="glass-card rounded-2xl shadow-sm border border-gray-200 p-6 flex-grow flex flex-col">
-                        <h3 class="text-lg font-bold text-navy mb-4 border-b pb-2 flex justify-between items-center">
-                            <span><i class="fa-solid fa-stethoscope text-blue-500 mr-2"></i> ความเห็นแพทย์ผู้ตรวจ</span>
-                            <span class="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded">ส่วนที่แสดงให้คนไข้เห็น</span>
-                        </h3>
-                        
-                        <textarea id="doctor-opinion" class="w-full flex-grow min-h-[250px] border border-gray-300 rounded-xl p-4 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none" placeholder="พิมพ์ความเห็นแพทย์ หรือกดปุ่มให้ AI ร่างข้อความให้..."></textarea>
-                        
-                        <div class="mt-4 flex justify-end">
-                            <button class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors shadow-sm" onclick="saveData()">
-                                <i class="fa-solid fa-floppy-disk mr-2"></i> บันทึกผลการตรวจ
-                            </button>
-                        </div>
-                    </div>
-
                 </div>
             </div>
 
@@ -162,36 +118,213 @@
     </main>
 
     <script>
+        // Dummy data for the prototype
+        const dummyData = {
+            'BMI': '21.1',
+            'ความดัน': '110/70',
+            'ชีพจร': '88',
+            'น้ำหนัก': '75',
+            'ส่วนสูง': '170',
+            'CBC': 'ปกติ',
+            'คัดกรอง NCD (HT)': 'ปกติ',
+            'FBS': '95',
+            'HbA1c': '5.2',
+            'Uric_acid': '5.1',
+            'Total_Cholesterol': '180',
+            'Triglyceride': '120',
+            'HDL': '55',
+            'LDL': '90',
+            'BUN': '12',
+            'Creatinine': '0.8',
+            'SGOT': '25',
+            'SGPT': '25',
+            'Alk_Phosphatase': '140', // Abnormal
+            'AFP': '3.2',
+            'CEA': '1.5',
+            'CA_125': '12',
+            'CA199': '15',
+            'PSA': '1.1',
+            'Free_T3': '3.0',
+            'Free_T4': '1.2',
+            'TSH': '2.5',
+            'HbsAg': 'Negative',
+            'HbsAb': 'Positive',
+            'Anti_HCV': 'Negative',
+            'Blood group': 'O',
+            'UA': 'ปกติ',
+            'Stool_Exam': 'ปกติ',
+            'เลือดแฝงในอุจจาระ': 'Negative',
+            'Physical_exam': 'ปกติ',
+            'Chest_X_Ray': 'ปกติ',
+            'EKG': 'ปกติ',
+            'Ultrasound': 'Fatty liver mild degree',
+            'ตรวจมะเร็งปากมดลูก': '-',
+            'HPV DNA Test': '-',
+            'Bone Density': '-',
+            'Body Composition Analyzer': '-',
+            'Low Dose CT scan': '-',
+            '2Q': 'ปกติ'
+        };
+
+        const GROUPS = [
+            { id: 'vitals', title: '1. ข้อมูลพื้นฐานและสัญญาณชีพ', icon: 'fa-heart-pulse', fields: [
+                { key: 'BMI', label: 'ดัชนีมวลกาย (BMI)', valueKey: 'BMI', normal: '18.5 - 22.9' },
+                { key: 'BP', label: 'ความดันโลหิต (BP)', valueKey: 'ความดัน' },
+                { key: 'P', label: 'ชีพจร (Pulse)', valueKey: 'ชีพจร' }
+            ]},
+            { id: 'cbc', title: '2. ผลการตรวจความสมบูรณ์ของเลือด', icon: 'fa-droplet', fields: [
+                { key: 'CBC', label: 'ความสมบูรณ์ของเลือด (CBC)', valueKey: 'CBC' }
+            ]},
+            { id: 'ncd_blood', title: '3. ผลการตรวจเลือดโรค NCD (เบาหวาน, เก๊าท์, ไขมัน)', icon: 'fa-syringe', fields: [
+                { key: 'HT', label: 'การคัดกรองความดันโลหิตสูง', valueKey: 'คัดกรอง NCD (HT)' },
+                { key: 'FBS', label: 'น้ำตาลในเลือด (FBS)', valueKey: 'FBS', normal: '70 - 99 mg/dL' },
+                { key: 'HbA1c', label: 'น้ำตาลสะสม (HbA1c)', valueKey: 'HbA1c', normal: '< 5.7 %' },
+                { key: 'Uric acid', label: 'กรดยูริก (Uric acid)', valueKey: 'Uric_acid', normal: '3.4 - 7.0 mg/dL' },
+                { key: 'Total Cholesterol', label: 'คอเลสเตอรอลรวม (TC)', valueKey: 'Total_Cholesterol', normal: '< 200 mg/dL' },
+                { key: 'Triglyceride', label: 'ไตรกลีเซอไรด์ (TG)', valueKey: 'Triglyceride', normal: '< 150 mg/dL' },
+                { key: 'HDL', label: 'ไขมันดี (HDL)', valueKey: 'HDL', normal: '> 40 mg/dL' },
+                { key: 'LDL', label: 'ไขมันเลว (LDL)', valueKey: 'LDL', normal: '< 100 mg/dL' }
+            ]},
+            { id: 'kidney', title: '4. ผลการตรวจการทำงานของไต', icon: 'fa-flask', fields: [
+                { key: 'BUN', label: 'ค่าการทำงานของไต (BUN)', valueKey: 'BUN', normal: '7 - 20 mg/dL' },
+                { key: 'Creatinine', label: 'ค่าการทำงานของไต (Creatinine)', valueKey: 'Creatinine', normal: '0.6 - 1.2 mg/dL' }
+            ]},
+            { id: 'liver', title: '5. ผลการตรวจการทำงานของตับ', icon: 'fa-vials', fields: [
+                { key: 'SGOT (AST)', label: 'เอนไซม์ตับ (SGOT/AST)', valueKey: 'SGOT', normal: '0 - 40 U/L' },
+                { key: 'SGPT (ALT)', label: 'เอนไซม์ตับ (SGPT/ALT)', valueKey: 'SGPT', normal: '0 - 41 U/L' },
+                { key: 'Alk. Phosphatase', label: 'เอนไซม์ตับ (Alk. Phosphatase)', valueKey: 'Alk_Phosphatase', normal: '40 - 129 U/L' }
+            ]},
+            { id: 'tumor', title: '6. ผลการตรวจสารบ่งชี้มะเร็ง', icon: 'fa-virus', fields: [
+                { key: 'AFP', label: 'สารบ่งชี้มะเร็งตับ (AFP)', valueKey: 'AFP', normal: '< 8.0 ng/mL' },
+                { key: 'CEA', label: 'สารบ่งชี้มะเร็งทางเดินอาหาร (CEA)', valueKey: 'CEA', normal: '< 5.0 ng/mL' },
+                { key: 'CA 125', label: 'สารบ่งชี้มะเร็งรังไข่ (CA 125)', valueKey: 'CA_125', normal: '< 35 U/mL' },
+                { key: 'CA199', label: 'สารบ่งชี้มะเร็งตับอ่อน (CA199)', valueKey: 'CA199', normal: '< 37 U/mL' },
+                { key: 'PSA', label: 'สารบ่งชี้มะเร็งต่อมลูกหมาก (PSA)', valueKey: 'PSA', normal: '< 4.0 ng/mL' }
+            ]},
+            { id: 'thyroid_immuno', title: '7. ผลการตรวจไทรอยด์และภูมิคุ้มกัน', icon: 'fa-shield-virus', fields: [
+                { key: 'Free T3', label: 'ฮอร์โมนไทรอยด์ (Free T3)', valueKey: 'Free_T3', normal: '2.0 - 4.4 pg/mL' },
+                { key: 'Free T4', label: 'ฮอร์โมนไทรอยด์ (Free T4)', valueKey: 'Free_T4', normal: '0.82 - 1.77 ng/dL' },
+                { key: 'TSH', label: 'ฮอร์โมนไทรอยด์ (TSH)', valueKey: 'TSH', normal: '0.4 - 4.0 mIU/L' },
+                { key: 'HbsAg', label: 'เชื้อไวรัสตับอักเสบ บี (HbsAg)', valueKey: 'HbsAg', normal: 'Negative' },
+                { key: 'HbsAb', label: 'ภูมิคุ้มกันไวรัสตับอักเสบ บี (HbsAb)', valueKey: 'HbsAb', normal: 'Negative' },
+                { key: 'Anti-HCV', label: 'ภูมิคุ้มกันไวรัสตับอักเสบ ซี (Anti-HCV)', valueKey: 'Anti_HCV', normal: 'Negative' },
+                { key: 'Blood group', label: 'หมู่เลือด (Blood group)', valueKey: 'Blood group', normal: null }
+            ]},
+            { id: 'ua', title: '8. ผลการตรวจปัสสาวะ', icon: 'fa-vial', fields: [
+                { key: 'UA', label: 'ปัสสาวะ (UA)', valueKey: 'UA', normal: '0 - 5' }
+            ]},
+            { id: 'stool', title: '9. ผลการตรวจอุจจาระ', icon: 'fa-poop', fields: [
+                { key: 'Stool Exam', label: 'อุจจาระ (Stool Exam)', valueKey: 'Stool_Exam' },
+                { key: 'Stool occult blood', label: 'เลือดแฝงในอุจจาระ', valueKey: 'เลือดแฝงในอุจจาระ' }
+            ]},
+            { id: 'special_exams', title: '10. การตรวจพิเศษ (X-Ray, อัลตราซาวด์, ฯลฯ)', icon: 'fa-x-ray', fields: [
+                { key: 'Physical examination', label: 'ซักประวัติ ตรวจร่างกาย', valueKey: 'Physical_exam' },
+                { key: 'Chest X-Ray', label: 'เอกซเรย์ปอด (Chest X-Ray)', valueKey: 'Chest_X_Ray' },
+                { key: 'EKG', label: 'คลื่นไฟฟ้าหัวใจ (EKG)', valueKey: 'EKG' },
+                { key: 'Ultrasound', label: 'อัลตราซาวด์ช่องท้อง (Ultrasound)', valueKey: 'Ultrasound' },
+                { key: 'ตรวจมะเร็งปากมดลูก', label: 'ตรวจภายใน (Pap smear)', valueKey: 'ตรวจมะเร็งปากมดลูก' },
+                { key: 'HPV DNA Test', label: 'มะเร็งปากมดลูกระดับพันธุกรรม (HPV DNA)', valueKey: 'HPV DNA Test' },
+                { key: 'Bone Density', label: 'ภาวะกระดูกพรุน (Bone Density)', valueKey: 'Bone Density' },
+                { key: 'Body Composition Analyzer', label: 'องค์ประกอบร่างกาย', valueKey: 'Body Composition Analyzer' },
+                { key: 'Low Dose CT scan', label: 'คัดกรองมะเร็งปอด (Low Dose CT scan)', valueKey: 'Low Dose CT scan' }
+            ]},
+            { id: 'mental_health', title: '11. การประเมินภาวะสุขภาพจิต (2Q)', icon: 'fa-brain', fields: [
+                { key: '2Q', label: 'ผลการคัดกรองโรคซึมเศร้า (2Q)', valueKey: '2Q' }
+            ]},
+            { id: 'summary', title: '12. สรุปความเห็นแพทย์และการติดตามผล', icon: 'fa-user-doctor', fields: [
+                { key: 'FU', label: 'การติดตามผล (Follow-up)', valueKey: 'Follow_up' }
+            ]}
+        ];
+
+        function toggleAccordion(id) {
+            const content = document.getElementById('content-' + id);
+            const icon = document.getElementById('icon-' + id);
+            content.classList.toggle('open');
+            icon.classList.toggle('open');
+        }
+
+        function renderDashboard() {
+            const container = document.getElementById('results-container');
+            
+            GROUPS.forEach(group => {
+                const fieldsHTML = group.fields.map(field => {
+                    const val = dummyData[field.valueKey] || '';
+                    // check if abnormal (fake logic for prototype)
+                    let isAbnormal = (field.valueKey === 'Alk_Phosphatase' && val > 129) || (field.valueKey === 'Ultrasound' && val.includes('Fatty liver'));
+                    
+                    const normalHtml = field.normal ? `<div class="text-[10px] sm:text-xs text-gray-400 mt-1"><i class="fa-solid fa-info-circle mr-1"></i>ค่าปกติ: ${field.normal}</div>` : '';
+                    
+                    const statusBadge = isAbnormal 
+                        ? `<span class="bg-red-50 text-red-600 border border-red-200 text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-medium shadow-sm"><i class="fa-solid fa-circle-xmark mr-1"></i>ผิดปกติ/ต้องระวัง</span>`
+                        : `<span class="bg-green-50 text-green-600 border border-green-200 text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-medium shadow-sm"><i class="fa-solid fa-circle-check mr-1"></i>อยู่ในเกณฑ์ปกติ</span>`;
+
+                    return `
+                        <div class="py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center justify-between border-b border-dashed border-gray-200 last:border-0 hover:bg-white transition-colors rounded-lg px-2 sm:px-4">
+                            <div class="mb-2 sm:mb-0 w-full sm:w-1/2 pr-4">
+                                <span class="text-sm font-semibold text-gray-700 block">${field.label}</span>
+                                ${normalHtml}
+                            </div>
+                            <div class="flex items-center justify-between sm:justify-end w-full sm:w-1/2">
+                                <!-- Editable Input instead of static text -->
+                                <input type="text" class="border ${isAbnormal ? 'border-red-300 bg-red-50 text-red-700' : 'border-gray-300 bg-white'} rounded-md px-3 py-1.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none w-40 sm:w-48 mr-3" value="${val}" placeholder="กรอกผลลัพธ์">
+                                <div class="w-24 sm:w-32 text-right flex-shrink-0">
+                                    ${statusBadge}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                const accordionHTML = `
+                    <div class="glass-card rounded-2xl overflow-hidden bg-white shadow-sm border border-gray-200">
+                        <button class="w-full px-6 py-4 flex items-center justify-between bg-white hover:bg-slate-50 transition-colors focus:outline-none" onclick="toggleAccordion('${group.id}')">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-navy shadow-inner shrink-0">
+                                    <i class="fa-solid ${group.icon}"></i>
+                                </div>
+                                <span class="ml-4 font-bold text-gray-800 text-left text-sm md:text-base">${group.title}</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-down text-gray-400 accordion-icon" id="icon-${group.id}"></i>
+                        </button>
+                        <div class="accordion-content bg-slate-50 border-t border-gray-100 px-2 sm:px-6 open" id="content-${group.id}">
+                            <div class="space-y-1 pb-2 pt-1">
+                                ${fieldsHTML}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', accordionHTML);
+            });
+        }
+
         function simulateAI() {
             const btn = document.getElementById('btn-ai');
             const textarea = document.getElementById('doctor-opinion');
             
-            // Loading state
             const originalHTML = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> AI กำลังวิเคราะห์ผลแล็บ...';
             btn.disabled = true;
             btn.classList.replace('bg-purple-600', 'bg-purple-400');
             
-            // Simulate API delay (2 seconds)
             setTimeout(() => {
                 const aiResponse = `พบความผิดปกติที่ต้องเฝ้าระวัง ดังนี้:
-1. ภาวะน้ำตาลในเลือดสูง (FBS = 126 mg/dL) เข้าเกณฑ์สงสัยโรคเบาหวาน แนะนำให้ตรวจติดตามอาการ และควบคุมอาหารประเภทแป้งและน้ำตาล
-2. ภาวะไขมันคอเลสเตอรอลสูง (240 mg/dL) เสี่ยงต่อโรคหลอดเลือด แนะนำให้ลดอาหารไขมันทรานส์และของทอด
-3. ค่าการทำงานของตับ (AST = 45) สูงกว่าปกติเล็กน้อย อาจเกิดจากไขมันพอกตับ
-4. ความดันโลหิตค่อนข้างสูง (145/90)
+1. ค่าเอนไซม์ตับ (Alk. Phosphatase) สูงกว่าปกติเล็กน้อย (140 U/L)
+2. ผลอัลตราซาวด์ช่องท้องพบภาวะไขมันพอกตับระยะเริ่มต้น (Fatty liver mild degree)
 
-คำแนะนำเพิ่มเติม: แนะนำให้ออกกำลังกายสม่ำเสมอ ลดน้ำหนัก งดเครื่องดื่มแอลกอฮอล์ และควรมาพบแพทย์เพื่อเจาะเลือดตรวจซ้ำในอีก 3 เดือน`;
+คำแนะนำเพิ่มเติม: 
+- แนะนำให้ออกกำลังกายสม่ำเสมอ ลดน้ำหนัก
+- ลดการรับประทานอาหารที่มีไขมันสูง ของทอด แป้งและน้ำตาล
+- งดเครื่องดื่มแอลกอฮอล์ 
+- ควรมาพบแพทย์เพื่อเจาะเลือดตรวจการทำงานของตับซ้ำในอีก 3-6 เดือน`;
                 
-                // Typewriter effect
                 textarea.value = '';
                 let i = 0;
                 function typeWriter() {
                     if (i < aiResponse.length) {
                         textarea.value += aiResponse.charAt(i);
                         i++;
-                        setTimeout(typeWriter, 10);
+                        setTimeout(typeWriter, 15);
                     } else {
-                        // Reset button
                         btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i> สร้างร่างข้อความสำเร็จ';
                         btn.classList.replace('bg-purple-400', 'bg-green-600');
                         setTimeout(() => {
@@ -200,7 +333,6 @@
                             btn.classList.replace('bg-green-600', 'bg-purple-600');
                         }, 2000);
                         
-                        // Highlight textarea to show it's editable
                         textarea.classList.add('ring-2', 'ring-purple-300', 'bg-purple-50');
                         setTimeout(() => {
                             textarea.classList.remove('ring-2', 'ring-purple-300', 'bg-purple-50');
@@ -212,15 +344,8 @@
             }, 1500);
         }
 
-        function saveData() {
-            Swal.fire({
-                title: 'บันทึกสำเร็จ!',
-                text: 'ข้อมูลการแปลผลถูกจัดเก็บในฐานข้อมูลแล้ว (นี่คือระบบจำลอง)',
-                icon: 'success',
-                confirmButtonColor: '#1e40af',
-                confirmButtonText: 'ตกลง'
-            });
-        }
+        // Initialize
+        renderDashboard();
     </script>
 </body>
 </html>
