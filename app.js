@@ -708,6 +708,66 @@ function generateDynamicLabResults(rowData) {
     return html;
 }
 
+function selectBehaviorOption(btn, groupName) {
+    const group = document.getElementById(groupName);
+    if (!group) return;
+    const buttons = group.getElementsByClassName('behavior-btn');
+    for (let b of buttons) {
+        b.classList.remove('selected');
+    }
+    btn.classList.add('selected');
+}
+
+async function saveBehaviors() {
+    if (!AppState.currentPatient) {
+        Swal.fire('ข้อผิดพลาด', 'ไม่พบข้อมูลผู้ป่วยที่กำลังเลือก', 'error');
+        return;
+    }
+
+    const citizenId = AppState.currentPatient.id;
+    
+    const getSelectedText = (groupName) => {
+        const group = document.getElementById(groupName);
+        if (!group) return null;
+        const selected = group.querySelector('.behavior-btn.selected');
+        return selected ? selected.innerText : null;
+    };
+
+    const alcohol = getSelectedText('staff-alcohol-group');
+    const smoking = getSelectedText('staff-smoking-group');
+    const exercise = getSelectedText('staff-exercise-group');
+
+    if (!alcohol || !smoking || !exercise) {
+        Swal.fire('ข้อผิดพลาด', 'กรุณาเลือกประเมินพฤติกรรมให้ครบทั้ง 3 ข้อ', 'warning');
+        return;
+    }
+
+    try {
+        Swal.fire({
+            title: 'กำลังบันทึกข้อมูล...',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        const { data, error } = await supabaseClient
+            .from('patient_behaviors')
+            .upsert({ 
+                citizen_id: citizenId, 
+                alcohol: alcohol, 
+                smoking: smoking, 
+                exercise: exercise,
+                updated_at: new Date().toISOString()
+            }, { onConflict: 'citizen_id' });
+
+        if (error) throw error;
+
+        Swal.fire('สำเร็จ!', 'บันทึกข้อมูลพฤติกรรมสุขภาพเรียบร้อยแล้ว', 'success');
+    } catch (err) {
+        console.error('Error saving behavior:', err);
+        Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถบันทึกข้อมูลได้ (อย่าลืมสร้าง Table patient_behaviors ใน Supabase) ' + err.message, 'error');
+    }
+}
+
 function isNumericalAbnormal(valString, normalString, gender) {
     if (!valString || !normalString) return false;
     
