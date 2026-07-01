@@ -579,6 +579,31 @@ function renderPatientDashboard() {
     const p = AppState.currentPatient;
     if(!p) return;
     
+    // Fetch and load behaviors
+    supabaseClient.from('patient_behaviors').select('*').eq('citizen_id', p.id).single()
+        .then(({ data }) => {
+            const setButton = (groupName, val) => {
+                const group = document.getElementById(groupName);
+                if (!group || !val) return;
+                const buttons = group.getElementsByClassName('behavior-btn');
+                for (let b of buttons) {
+                    if (b.innerText.trim() === val.trim()) b.classList.add('selected');
+                    else b.classList.remove('selected');
+                }
+            };
+            if (data) {
+                setButton('staff-alcohol-group', data.alcohol);
+                setButton('staff-smoking-group', data.smoking);
+                setButton('staff-exercise-group', data.exercise);
+            } else {
+                ['staff-alcohol-group', 'staff-smoking-group', 'staff-exercise-group'].forEach(g => {
+                    const grp = document.getElementById(g);
+                    if(grp) Array.from(grp.getElementsByClassName('behavior-btn')).forEach(b => b.classList.remove('selected'));
+                });
+            }
+        })
+        .catch(err => console.log('No behavior data found'));
+        
     // Header
     if(DOM.pName) DOM.pName.textContent = p.name;
     if(DOM.pId) DOM.pId.textContent = p.id;
@@ -947,6 +972,7 @@ function renderStaffDashboard() {
     if(DOM.kpiNormal) DOM.kpiNormal.textContent = `${Math.round((normalCount / total) * 100) || 0}%`;
     
     renderCharts(ageGroups, abnormalTests);
+    fetchAndRenderBehaviorStats();
     
     const thead = document.querySelector('thead tr');
     if(thead) {
@@ -963,6 +989,54 @@ function renderStaffDashboard() {
     }
     
     renderStaffTable();
+}
+
+async function fetchAndRenderBehaviorStats() {
+    if(!document.getElementById('behaviorChart')) return;
+    try {
+        const { data, error } = await supabaseClient.from('patient_behaviors').select('*');
+        if (error) throw error;
+        
+        let stats = {
+            'ดื่มแอลกอฮอล์': 0,
+            'สูบบุหรี่': 0,
+            'ไม่ออกกำลังกาย': 0
+        };
+
+        if (data) {
+            data.forEach(b => {
+                if (b.alcohol && b.alcohol !== 'ไม่เคยดื่มเลย') stats['ดื่มแอลกอฮอล์']++;
+                if (b.smoking && b.smoking !== 'ไม่เคยสูบ' && b.smoking !== 'เคยสูบแต่เลิกแล้ว') stats['สูบบุหรี่']++;
+                if (b.exercise && b.exercise === 'ไม่ออกเลย') stats['ไม่ออกกำลังกาย']++;
+            });
+        }
+
+        if (AppState.charts.behaviorChart) AppState.charts.behaviorChart.destroy();
+        
+        const ctx = document.getElementById('behaviorChart').getContext('2d');
+        AppState.charts.behaviorChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(stats),
+                datasets: [{
+                    label: 'จำนวนที่มีความเสี่ยง (คน)',
+                    data: Object.values(stats),
+                    backgroundColor: ['rgba(234, 179, 8, 0.7)', 'rgba(239, 68, 68, 0.7)', 'rgba(59, 130, 246, 0.7)'],
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                }
+            }
+        });
+    } catch (err) {
+        console.error('Error fetching behaviors for chart:', err);
+    }
 }
 
 function renderCharts(ageData, abnormalData) {
