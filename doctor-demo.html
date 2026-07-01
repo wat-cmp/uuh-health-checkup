@@ -25,6 +25,7 @@
         .accordion-content.open { max-height: 2000px; padding-bottom: 1rem; }
         .accordion-icon { transition: transform 0.3s ease; }
         .accordion-icon.open { transform: rotate(180deg); }
+        .behavior-btn.selected { background-color: #3b82f6 !important; color: white !important; border-color: #2563eb !important; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.5); }
     </style>
 </head>
 <body class="text-gray-800 antialiased h-screen flex flex-col">
@@ -127,6 +128,48 @@
                         <p class="text-sm text-blue-700">
                             <strong>คำแนะนำ:</strong> ในหน้าจอนี้ แพทย์/เจ้าหน้าที่สามารถพิมพ์แก้ไขค่าผลตรวจในช่องต่างๆ ได้โดยตรง และสามารถเลื่อนลงไปด้านล่างสุดเพื่อใช้ AI ช่วยสรุปความเห็นแพทย์ได้
                         </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Health Behavior Screening Section -->
+            <div class="bg-white rounded-2xl shadow-sm p-6 mb-2 border-t-4 border-blue-500">
+                <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fa-solid fa-clipboard-user mr-2 text-blue-500"></i> แบบประเมินพฤติกรรมสุขภาพ
+                </h3>
+                
+                <div class="space-y-6">
+                    <!-- 1. Alcohol -->
+                    <div>
+                        <p class="font-medium text-gray-700 mb-2"><i class="fa-solid fa-wine-glass mr-1 text-gray-400"></i> 1. การดื่มเครื่องดื่มแอลกอฮอล์</p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2" id="demo-alcohol-group">
+                            <button class="behavior-btn py-2 px-3 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-colors" onclick="selectBehaviorOption(this, 'demo-alcohol-group')">ไม่เคยดื่มเลย</button>
+                            <button class="behavior-btn py-2 px-3 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-colors" onclick="selectBehaviorOption(this, 'demo-alcohol-group')">ดื่มเดือนละ 1-3 ครั้ง</button>
+                            <button class="behavior-btn py-2 px-3 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-colors" onclick="selectBehaviorOption(this, 'demo-alcohol-group')">สัปดาห์ละ 1-4 ครั้ง</button>
+                            <button class="behavior-btn py-2 px-3 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-colors" onclick="selectBehaviorOption(this, 'demo-alcohol-group')">แทบทุกวัน</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 2. Smoking -->
+                    <div>
+                        <p class="font-medium text-gray-700 mb-2"><i class="fa-solid fa-smoking mr-1 text-gray-400"></i> 2. การสูบบุหรี่</p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2" id="demo-smoking-group">
+                            <button class="behavior-btn py-2 px-3 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-colors" onclick="selectBehaviorOption(this, 'demo-smoking-group')">ไม่เคยสูบ</button>
+                            <button class="behavior-btn py-2 px-3 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-colors" onclick="selectBehaviorOption(this, 'demo-smoking-group')">เคยสูบแต่เลิกแล้ว</button>
+                            <button class="behavior-btn py-2 px-3 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-colors" onclick="selectBehaviorOption(this, 'demo-smoking-group')">สูบเป็นบางครั้ง</button>
+                            <button class="behavior-btn py-2 px-3 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-colors" onclick="selectBehaviorOption(this, 'demo-smoking-group')">สูบประจำทุกวัน</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 3. Exercise -->
+                    <div>
+                        <p class="font-medium text-gray-700 mb-2"><i class="fa-solid fa-person-running mr-1 text-gray-400"></i> 3. การออกกำลังกาย (อย่างน้อย 30 นาที/วัน)</p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2" id="demo-exercise-group">
+                            <button class="behavior-btn py-2 px-3 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-colors" onclick="selectBehaviorOption(this, 'demo-exercise-group')">ไม่ออกเลย</button>
+                            <button class="behavior-btn py-2 px-3 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-colors" onclick="selectBehaviorOption(this, 'demo-exercise-group')">1-2 วัน/สัปดาห์</button>
+                            <button class="behavior-btn py-2 px-3 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-colors" onclick="selectBehaviorOption(this, 'demo-exercise-group')">3-4 วัน/สัปดาห์</button>
+                            <button class="behavior-btn py-2 px-3 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-colors" onclick="selectBehaviorOption(this, 'demo-exercise-group')">5 วันขึ้นไป/สัปดาห์</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -483,6 +526,16 @@
             }, 1500);
         }
 
+        function selectBehaviorOption(btn, groupName) {
+            const group = document.getElementById(groupName);
+            if (!group) return;
+            const buttons = group.getElementsByClassName('behavior-btn');
+            for (let b of buttons) {
+                b.classList.remove('selected');
+            }
+            btn.classList.add('selected');
+        }
+
         function saveDemoData() {
             const savedData = {};
             GROUPS.forEach(group => {
@@ -495,11 +548,46 @@
             });
             const doctorOpinion = document.getElementById('doctor-opinion').value;
             
+            const getSelectedText = (groupName) => {
+                const group = document.getElementById(groupName);
+                if (!group) return null;
+                const selected = group.querySelector('.behavior-btn.selected');
+                return selected ? selected.innerText : null;
+            };
+            const behaviors = {
+                alcohol: getSelectedText('demo-alcohol-group'),
+                smoking: getSelectedText('demo-smoking-group'),
+                exercise: getSelectedText('demo-exercise-group')
+            };
+            
             localStorage.setItem('demo_patient_data', JSON.stringify(savedData));
+            localStorage.setItem('demo_patient_behaviors', JSON.stringify(behaviors));
             localStorage.setItem('demo_doctor_opinion', doctorOpinion);
             
             alert('บันทึกข้อมูลเรียบร้อยแล้ว (ระบบจำลอง)\n\nข้อมูลถูกซิงค์ไปให้หน้า Patient Demo แล้วครับ\nลองเปิดหน้า Patient Demo ดูความเปลี่ยนแปลงได้เลยครับ');
         }
+
+        function loadDemoBehaviors() {
+            try {
+                const saved = localStorage.getItem('demo_patient_behaviors');
+                if (saved) {
+                    const behaviors = JSON.parse(saved);
+                    const setBtn = (groupName, val) => {
+                        if (!val) return;
+                        const group = document.getElementById(groupName);
+                        if (!group) return;
+                        Array.from(group.querySelectorAll('.behavior-btn')).forEach(b => {
+                            if (b.innerText.trim() === val.trim()) b.classList.add('selected');
+                        });
+                    };
+                    setBtn('demo-alcohol-group', behaviors.alcohol);
+                    setBtn('demo-smoking-group', behaviors.smoking);
+                    setBtn('demo-exercise-group', behaviors.exercise);
+                }
+            } catch (e) {}
+        }
+        
+        loadDemoBehaviors();
 
         // Initialize Dashboard
         renderDashboard();
